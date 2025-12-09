@@ -103,6 +103,7 @@ class Game:
         self.rubis = 0
 
         self.BACKGROUND = pygame.image.load("sample1.png")
+        self.BACKGROUNDESTICADO = pygame.transform.scale(self.BACKGROUND, (self.largura, self.altura))
 
         self.spawn_random_coin()
 
@@ -153,7 +154,7 @@ class Game:
 
             self.tela.fill((0, 0, 0))
 
-            self.tela.blit(self.BACKGROUND, (0, 0))
+            self.tela.blit(self.BACKGROUNDESTICADO, (0, 0))
 
             for event in pygame.event.get():
                 if event.type == QUIT:
