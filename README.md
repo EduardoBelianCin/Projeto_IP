@@ -4,6 +4,6 @@
 ## Arquitetura do Projeto
 ## Ferramentas Utilizadas
 ## Divisão do Trabalho
-## Comceitos Aprendidos em Aula
-## Desafios enfrentados
-### Lições aprendidas
+## Conceitos Aprendidos em Aula
+## Desafios Enfrentados
+### Lições Aprendidas
