@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 from sys import exit
 from random import randint
+from math import sqrt
 
 pygame.init()
 
@@ -15,14 +16,28 @@ class Player:
 
     def move(self, largura, altura):
         keys = pygame.key.get_pressed()
+
+        VX = 0
+        VY = 0
+        
         if keys[K_a]:
-            self.x -= self.speed
+            VX -= 1
         if keys[K_d]:
-            self.x += self.speed
+            VX += 1
         if keys[K_w]:
-            self.y -= self.speed
+            VY -= 1
         if keys[K_s]:
-            self.y += self.speed
+            VY += 1
+
+        NORMA_DO_VETOR_MOV = sqrt(VX**2 + VY**2)
+
+        if NORMA_DO_VETOR_MOV > 0:
+            VX_NORM = VX / NORMA_DO_VETOR_MOV
+            VY_NORM = VY / NORMA_DO_VETOR_MOV
+
+            self.x += VX_NORM * self.speed
+            self.y += VY_NORM * self.speed
+
 
         if self.x < 0:
             self.x = 0
@@ -67,6 +82,7 @@ class Ruby(Coin):
 
 class Game:
     def __init__(self):
+
         self.largura = 1000
         self.altura = 600
         self.tela = pygame.display.set_mode((self.largura, self.altura))
@@ -86,6 +102,8 @@ class Game:
         self.moedas_ouro = 0
         self.rubis = 0
 
+        self.BACKGROUND = pygame.image.load("sample1.png")
+
         self.spawn_random_coin()
 
     def spawn_random_coin(self):
@@ -95,9 +113,9 @@ class Game:
         self.gold.x = self.gold.y = 10000
         self.ruby.x = self.ruby.y = 10000
 
-        if sorteio == 20:
+        if sorteio in range(15, 21):
             self.ruby.reposition(self.largura, self.altura)
-        elif sorteio in (18, 19):
+        elif sorteio in range(10, 21):
             self.gold.reposition(self.largura, self.altura)
         else:
             self.silver.reposition(self.largura, self.altura)
@@ -132,7 +150,10 @@ class Game:
     def run(self):
         while True:
             self.relogio.tick(30)
+
             self.tela.fill((0, 0, 0))
+
+            self.tela.blit(self.BACKGROUND, (0, 0))
 
             for event in pygame.event.get():
                 if event.type == QUIT:
