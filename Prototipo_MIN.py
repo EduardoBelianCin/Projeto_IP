@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 from sys import exit
 from random import randint
+from math import sqrt 
 
 pygame.init()
 
@@ -15,14 +16,27 @@ class Player:
 
     def move(self, largura, altura):
         keys = pygame.key.get_pressed()
+        
+        VX = 0
+        VY = 0
+        
         if keys[K_a]:
-            self.x -= self.speed
+            VX -= 1
         if keys[K_d]:
-            self.x += self.speed
+            VX += 1
         if keys[K_w]:
-            self.y -= self.speed
+            VY -= 1
         if keys[K_s]:
-            self.y += self.speed
+            VY += 1
+
+        NORMA_DO_VETOR_MOV = sqrt(VX**2 + VY**2)
+
+        if NORMA_DO_VETOR_MOV > 0:
+            VX_NORM = VX / NORMA_DO_VETOR_MOV
+            VY_NORM = VY / NORMA_DO_VETOR_MOV
+
+            self.x += VX_NORM * self.speed
+            self.y += VY_NORM * self.speed
 
         if self.x < 0:
             self.x = 0
@@ -44,6 +58,7 @@ class Coin:
         self.radius = 10
         self.x = 10000
         self.y = 10000
+
 
     def reposition(self, largura, altura):
         self.x = randint(0, largura)
@@ -67,6 +82,10 @@ class Ruby(Coin):
 
 class Game:
     def __init__(self):
+
+        ICON = pygame.image.load("icone_teste.png")
+        pygame.display.set_icon(ICON)
+        
         self.largura = 1000
         self.altura = 600
         self.tela = pygame.display.set_mode((self.largura, self.altura))
