@@ -114,9 +114,9 @@ class Game:
         self.gold.x = self.gold.y = 10000
         self.ruby.x = self.ruby.y = 10000
 
-        if sorteio in range(15, 21):
+        if sorteio in range(14, 21):
             self.ruby.reposition(self.largura, self.altura)
-        elif sorteio in range(10, 21):
+        elif sorteio in range(7, 21):
             self.gold.reposition(self.largura, self.altura)
         else:
             self.silver.reposition(self.largura, self.altura)

@@ -9,7 +9,7 @@ class Player:
         self.size = 30
         self.color = (150, 0, 200)
         self.speed = 5
-        self.state = "Idle" # Põe a animação inicila como "Parado"
+        self.state = "Idle"        # Põe a animação inicila como "Parado"
         self.direction = "Front"   # põe a direção inicial como sendo de frente
 
         self.sprites = sprites
@@ -24,20 +24,20 @@ class Player:
         estado_anterior = self.state
         direção_anterior = self.direction
 
-        VX = 0
-        VY = 0
+        VX = 0 ## Reinicia a coordenada X
+        VY = 0 ## Reinicia a coordenada Y
         
         if keys[K_a]:
-            VX -= 1  # Move o boneco
+            VX -= 1                   ## Declara a coordenada de X como negativa
             self.direction = "Left"   # Define para qual direção ele deve ta olhando
         if keys[K_d]:
-            VX += 1
+            VX += 1                   ## Declara a coordenada de X como positiva
             self.direction = "Right"
         if keys[K_w]:
-            VY -= 1
+            VY -= 1                   ## Declara a coordenada de Y como negativa
             self.direction = "Back"
         if keys[K_s]:
-            VY += 1
+            VY += 1                   ## Declara a coordenada de Y como positiva
             self.direction = "Front"
 
         if VX != 0 or VY != 0:
@@ -51,13 +51,13 @@ class Player:
 
         self.update_animation()
 
-        NORMA_DO_VETOR_MOV = sqrt(VX**2 + VY**2)
+        NORMA_DO_VETOR_MOV = sqrt(VX**2 + VY**2) ## Define a norma do vetor (X, Y) para corrigir a velocidade diagonal
         if NORMA_DO_VETOR_MOV > 0:
-            VX_NORM = VX / NORMA_DO_VETOR_MOV
-            VY_NORM = VY / NORMA_DO_VETOR_MOV
+            VX_NORM = VX / NORMA_DO_VETOR_MOV    ## Define a nova coordenada X corrigida para com a velocidade diagonal
+            VY_NORM = VY / NORMA_DO_VETOR_MOV    ## Define a nova coordenada Y corrigida para com a velocidade diagonal
 
-            self.x += VX_NORM * self.speed
-            self.y += VY_NORM * self.speed
+            self.x += VX_NORM * self.speed       ## Move o jogador na direção X
+            self.y += VY_NORM * self.speed       ## Move o jogador na direção Y
 
         if self.x < 0:
             self.x = 0

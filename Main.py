@@ -53,8 +53,8 @@ class Game:
         self.moedas_ouro = 0
         self.rubis = 0
 
-        self.BACKGROUND = pygame.image.load("sample1.png")
-        self.BACKGROUNDESTICADO = pygame.transform.scale(self.BACKGROUND, (self.largura, self.altura))
+        self.BACKGROUND = pygame.image.load("sample1.png")                                  ## Importa a imagem de background
+        self.BACKEST = pygame.transform.scale(self.BACKGROUND, (self.largura, self.altura)) ## Estica a imagem para o tamanho da janela
 
         self.spawn_random_coin()
 
@@ -65,9 +65,9 @@ class Game:
         self.gold.x = self.gold.y = 10000
         self.ruby.x = self.ruby.y = 10000
 
-        if sorteio in range(15, 21):
+        if sorteio in range(14, 21):
             self.ruby.reposition(self.largura, self.altura)
-        elif sorteio in range(10, 21):
+        elif sorteio in range(7, 21):
             self.gold.reposition(self.largura, self.altura)
         else:
             self.silver.reposition(self.largura, self.altura)
@@ -105,7 +105,7 @@ class Game:
 
             self.tela.fill((0, 0, 0))
 
-            self.tela.blit(self.BACKGROUNDESTICADO, (0, 0))
+            self.tela.blit(self.BACKEST, (0, 0))
 
             for event in pygame.event.get():
                 if event.type == QUIT:
