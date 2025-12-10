@@ -1,4 +1,5 @@
 import pygame
+import os
 from pygame.locals import *
 from sys import exit
 from random import randint
@@ -7,9 +8,28 @@ from coletaveis import *
 
 pygame.init()
 
-class Game:
-    def __init__(self):
+def load_sprites_from_folder(folder):
+        directions = ['Back', 'Front', 'Left', 'Right']
+        sprites = {}
 
+        for state in ['Idle', 'Walk']:
+            sprites[state] = {}
+
+
+            for direction in directions:
+                direction_folder = os.path.join(folder, state, direction)
+                sprites[state][direction] = []
+
+                if os.path.exists(direction_folder):
+                    for filename in os.listdir(direction_folder):
+                        if filename.endswith(".png"):
+                            img = pygame.image.load(os.path.join(direction_folder, filename))
+                            sprites[state][direction].append(img)
+        return sprites
+
+class Game:
+
+    def __init__(self):
         self.largura = 1000
         self.altura = 600
         self.tela = pygame.display.set_mode((self.largura, self.altura))
@@ -18,7 +38,11 @@ class Game:
         self.relogio = pygame.time.Clock()
         self.font = pygame.font.SysFont("TimesNewRoman", 20, False, False)
 
-        self.player = Player(self.largura // 2, self.altura // 2)
+        # Carregar os sprites das animações
+        self.sprites = load_sprites_from_folder("sprites")
+
+        # Criar o jogador, passando os sprites
+        self.player = Player(self.largura // 2, self.altura // 2, self.sprites)
 
         self.silver = SilverCoin()
         self.gold = GoldCoin()
