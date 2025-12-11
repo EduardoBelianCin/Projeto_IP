@@ -5,6 +5,7 @@ from sys import exit
 from random import randint
 from cruzado import Player
 from coletaveis import *
+from hud import Hud
 
 pygame.init()
 
@@ -36,7 +37,7 @@ class Game:
         pygame.display.set_caption('O Cruzado Aventureiro')
 
         self.relogio = pygame.time.Clock()
-        self.font = pygame.font.SysFont("TimesNewRoman", 20, True, False)
+        self.font = pygame.font.SysFont("dejavusans", 30, False, False)
 
         # Carregar os sprites das animações
         self.sprites = load_sprites_from_folder("sprites")
@@ -55,21 +56,21 @@ class Game:
         self.diamantes = 0
         self.moedas = 0
         self.maçãs = 0
+
         self.vida = 100
+        self.hud_sprites = self.load_hud_sprites("sprites/hud/barra de vida")
 
         self.spawn_random_coin()
 
-    def draw_hud(self):
-
-        linha1 = self.font.render(f"Pontos: {self.pontos}", True, (255,255,255))
-        linha2 = self.font.render(f"diamantes: {self.diamantes}", True, (255,255,255))
-        linha3 = self.font.render(f"Moedas: {self.moedas}", True, (255,255,255))
-        linha4 = self.font.render(f"maçãs: {self.maçãs}", True, (255,255,255))
-
-        self.tela.blit(linha1, (20, 20))
-        self.tela.blit(linha2, (20, 45))
-        self.tela.blit(linha3, (20, 70))
-        self.tela.blit(linha4, (20, 95))
+    def load_hud_sprites(self, arquivos):
+        hud_sprites = {}
+        for filename in os.listdir(arquivos):
+            if filename.endswith(".png"):
+                key = os.path.splitext(filename)[0]
+                img = pygame.image.load(os.path.join(arquivos, filename)).convert_alpha()
+                img = pygame.transform.scale(img, (270, 30))
+                hud_sprites[key] = img
+        return hud_sprites
 
     def spawn_random_coin(self):
         sorteio = randint(0, 20)
@@ -98,7 +99,7 @@ class Game:
 
         if templário.colliderect(pygame.Rect(self.item_maçã.x+20, self.item_maçã.y, 10, 10)):
             self.maçãs += 1
-            self.pontos += self.item_maçã.value
+            self.vida = min(100, self.vida + self.item_maçã.value)
             self.spawn_random_coin()
 
     def run(self):
@@ -123,7 +124,16 @@ class Game:
 
             self.check_collisions(templário)
 
-            self.draw_hud()
+            Hud().draw_hud(
+                self.tela,
+                self.font,
+                self.pontos,
+                self.diamantes,
+                self.moedas,
+                self.maçãs,
+                self.vida,
+                self.hud_sprites
+            )
 
             pygame.display.update()
 
