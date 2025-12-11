@@ -6,9 +6,9 @@ class Player:
     def __init__(self, x, y, sprites):
         self.x = x
         self.y = y
-        self.size = 30
+        self.size = 60
         self.color = (150, 0, 200)
-        self.speed = 5
+        self.speed = 10
         self.state = "Idle"        # Põe a animação inicila como "Parado"
         self.direction = "Front"   # põe a direção inicial como sendo de frente
 

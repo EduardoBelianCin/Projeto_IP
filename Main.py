@@ -25,14 +25,15 @@ def load_sprites_from_folder(folder):
                     for filename in os.listdir(direction_folder):
                         if filename.endswith(".png"):
                             img = pygame.image.load(os.path.join(direction_folder, filename))
+                            img = pygame.transform.scale_by(img, 2)
                             sprites[state][direction].append(img)
         return sprites
 
 class Game:
 
     def __init__(self):
-        self.largura = 1000
-        self.altura = 600
+        self.largura = 1666
+        self.altura = 1000
         self.tela = pygame.display.set_mode((self.largura, self.altura))
         pygame.display.set_caption('O Cruzado Aventureiro')
 
