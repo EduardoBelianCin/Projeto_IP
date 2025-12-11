@@ -96,17 +96,17 @@ class Game:
             self.item_diamante.reposition(self.largura, self.altura)
 
     def check_collisions(self, templário):
-        if templário.colliderect(pygame.Rect(self.item_diamante.x+20, self.item_diamante.y, 10, 10)):
+        if templário.colliderect(pygame.Rect(self.item_diamante.x+40, self.item_diamante.y, 10, 20)):
             self.diamantes += 1
             self.pontos += self.item_diamante.value
             self.spawn_random_coin()
 
-        if templário.colliderect(pygame.Rect(self.item_moeda.x+20, self.item_moeda.y, 10, 10)):
+        if templário.colliderect(pygame.Rect(self.item_moeda.x+40, self.item_moeda.y, 10, 20)):
             self.moedas += 1
             self.pontos += self.item_moeda.value
             self.spawn_random_coin()
 
-        if templário.colliderect(pygame.Rect(self.item_maçã.x+20, self.item_maçã.y, 10, 10)):
+        if templário.colliderect(pygame.Rect(self.item_maçã.x+40, self.item_maçã.y, 10, 20)):
             self.maçãs += 1
             self.vida = min(100, self.vida + self.item_maçã.value)
             self.spawn_random_coin()
