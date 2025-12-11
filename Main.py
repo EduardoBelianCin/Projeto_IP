@@ -73,17 +73,17 @@ class Game:
             self.silver.reposition(self.largura, self.altura)
 
     def check_collisions(self, prot):
-        if prot.colliderect(pygame.Rect(self.silver.x-10, self.silver.y-10, 20, 20)):
+        if prot.colliderect(pygame.Rect(self.silver.x+20, self.silver.y, 10, 10)):
             self.moedas_prata += 1
             self.pontos += self.silver.value
             self.spawn_random_coin()
 
-        if prot.colliderect(pygame.Rect(self.gold.x-10, self.gold.y-10, 20, 20)):
+        if prot.colliderect(pygame.Rect(self.gold.x+20, self.gold.y, 10, 10)):
             self.moedas_ouro += 1
             self.pontos += self.gold.value
             self.spawn_random_coin()
 
-        if prot.colliderect(pygame.Rect(self.ruby.x-10, self.ruby.y-10, 20, 20)):
+        if prot.colliderect(pygame.Rect(self.ruby.x+20, self.ruby.y, 10, 10)):
             self.rubis += 1
             self.pontos += self.ruby.value
             self.spawn_random_coin()

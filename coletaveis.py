@@ -12,7 +12,7 @@ class Coin:
         caminho = os.path.join(PASTA_ITENS, nome_da_imagem)
         
         imagem_original = pygame.image.load(caminho).convert_alpha()
-        self.image = pygame.transform.scale(imagem_original, (32, 32))
+        self.image = pygame.transform.scale(imagem_original, (44, 24))
         self.image.set_colorkey((255, 255, 255))
 
         self.rect = self.image.get_rect()
