@@ -32,8 +32,8 @@ def load_sprites_from_folder(folder):
 class Game:
 
     def __init__(self):
-        self.largura = 1666
-        self.altura = 1000
+        self.largura = 1920
+        self.altura = 1080
         self.tela = pygame.display.set_mode((self.largura, self.altura))
         pygame.display.set_caption('O Cruzado Aventureiro')
 
