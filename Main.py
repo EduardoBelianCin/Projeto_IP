@@ -53,7 +53,7 @@ class Game:
         self.moedas_ouro = 0
         self.rubis = 0
 
-        self.BACKGROUND = pygame.image.load("sample1.png")                                  ## Importa a imagem de background
+        self.BACKGROUND = pygame.image.load("Background_Game.png")                                 ## Importa a imagem de background
         self.BACKEST = pygame.transform.scale(self.BACKGROUND, (self.largura, self.altura)) ## Estica a imagem para o tamanho da janela
 
         self.spawn_random_coin()
