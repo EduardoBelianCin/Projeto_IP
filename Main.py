@@ -46,6 +46,8 @@ class Game:
         # Criar o jogador, passando os sprites
         self.player = Player(self.largura // 2, self.altura // 2, self.sprites)
 
+        self.cursor_customizado()
+
         self.item_diamante = Diamante()
         self.item_moeda = Moeda()
         self.item_maçã = Maça()
@@ -72,6 +74,10 @@ class Game:
                 img = pygame.transform.scale(img, (270, 30))
                 hud_sprites[key] = img
         return hud_sprites
+    
+    def cursor_customizado(self):
+        self.cursor = pygame.image.load("sprites/cursor.png").convert_alpha()
+        pygame.mouse.set_visible(False)
 
     def spawn_random_coin(self):
         sorteio = randint(0, 20)
@@ -135,6 +141,9 @@ class Game:
                 self.vida,
                 self.hud_sprites
             )
+
+            mouse_pos = pygame.mouse.get_pos()
+            self.tela.blit(self.cursor, mouse_pos)
 
             pygame.display.update()
 
