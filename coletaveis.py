@@ -34,14 +34,14 @@ class Coin:
         tela.blit(self.image, self.rect)
         return self.rect
 
-class SilverCoin(Coin):
+class Diamante(Coin):
     def __init__(self):
         super().__init__("diamante.png", 1)
 
-class GoldCoin(Coin):
+class Moeda(Coin):
     def __init__(self):
         super().__init__("moeda.png", 10)
 
-class Ruby(Coin):
+class Maça(Coin):
     def __init__(self):
         super().__init__("maca.png", 50)
