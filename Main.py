@@ -63,6 +63,8 @@ class Game:
         self.vida = 100
         self.hud_sprites = self.load_hud_sprites("sprites/hud/barra de vida")
 
+        self.FULLSCREEN = False
+
         self.spawn_random_coin()
 
     def load_hud_sprites(self, arquivos):
@@ -111,6 +113,25 @@ class Game:
 
     def run(self):
         while True:
+
+            keysrun = pygame.key.get_pressed()
+
+            if keysrun[K_F11]:
+                if self.FULLSCREEN==False:
+                    self.BACKEST = pygame.transform.scale(self.BACKGROUND, (self.largura, self.altura)) 
+                    self.tela = pygame.display.set_mode((self.largura, self.altura), pygame.FULLSCREEN)
+                    self.FULLSCREEN=True
+
+                    while(bool(self.tela.get_flags() & pygame.FULLSCREEN)==False):
+                        self.FULLSCREEN=True
+                elif self.FULLSCREEN==True:
+                    self.BACKEST = pygame.transform.scale(self.BACKGROUND, (self.largura, self.altura)) 
+                    self.tela = pygame.display.set_mode((self.largura, self.altura))
+                    self.FULLSCREEN=False
+                    
+                    while(bool(self.tela.get_flags() & pygame.FULLSCREEN)==True):
+                        self.FULLSCREEN=False
+
             self.relogio.tick(30)
 
             self.tela.fill((0, 0, 0))
