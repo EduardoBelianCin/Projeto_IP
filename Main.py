@@ -9,7 +9,7 @@ from hud import Hud
 
 pygame.init()
 
-def load_sprites_from_folder(folder):
+def load_sprites_from_folder(folder):    # Animação do templário
         directions = ['Back', 'Front', 'Left', 'Right']
         sprites = {}
 
@@ -35,7 +35,9 @@ class Game:
         self.largura = 1920
         self.altura = 1080
         self.tela = pygame.display.set_mode((self.largura, self.altura))
+
         pygame.display.set_caption('O Cruzado Aventureiro')
+        pygame.display.set_icon(pygame.image.load('icone_teste.png'))
 
         self.relogio = pygame.time.Clock()
         self.font = pygame.font.SysFont("dejavusans", 30, False, False)
@@ -67,7 +69,7 @@ class Game:
 
         self.spawn_random_coin()
 
-    def load_hud_sprites(self, arquivos):
+    def load_hud_sprites(self, arquivos):    # Barra de vida
         hud_sprites = {}
         for filename in os.listdir(arquivos):
             if filename.endswith(".png"):
@@ -77,7 +79,7 @@ class Game:
                 hud_sprites[key] = img
         return hud_sprites
     
-    def cursor_customizado(self):
+    def cursor_customizado(self):     # Cursor do mouse personalizado
         self.cursor = pygame.image.load("sprites/cursor.png").convert_alpha()
         pygame.mouse.set_visible(False)
 
@@ -95,7 +97,7 @@ class Game:
         else:
             self.item_diamante.reposition(self.largura, self.altura)
 
-    def check_collisions(self, templário):
+    def check_collisions(self, templário):    # Ação de coleta dos itens
         if templário.colliderect(pygame.Rect(self.item_diamante.x+40, self.item_diamante.y, 10, 20)):
             self.diamantes += 1
             self.pontos += self.item_diamante.value
