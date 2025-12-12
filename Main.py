@@ -13,12 +13,13 @@ def load_sprites_from_folder(folder):    # Animação do templário
         directions = ['Back', 'Front', 'Left', 'Right']
         sprites = {}
 
+        templario_folder = os.path.join(folder, "templario")
+
         for state in ['Idle', 'Walk']:
             sprites[state] = {}
 
-
             for direction in directions:
-                direction_folder = os.path.join(folder, state, direction)
+                direction_folder = os.path.join(templario_folder, state, direction)
                 sprites[state][direction] = []
 
                 if os.path.exists(direction_folder):
