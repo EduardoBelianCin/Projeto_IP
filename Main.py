@@ -3,7 +3,7 @@ import os
 from pygame.locals import *
 from sys import exit
 from random import randint
-from cruzado import Player
+from cruzado import *
 from coletaveis import *
 from hud import Hud
 
@@ -72,6 +72,20 @@ class Game:
 
         self.spawn_random_coin()
 
+        self.hud_sprites = Hud().load_hud_sprites("sprites/hud/barra de vida")
+
+        self.FULLSCREEN = False
+
+        self.spawn_random_coin()
+        
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_x, mouse_y = mouse_pos
+        
+        self.sword = Sword('sprites/templario/espada.png', 10, 80)
+        self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
+        sword_rect = self.sword.rect
+        self.sword.draw(self.tela)
+
     def spawn_random_coin(self):
         sorteio = randint(0, 20)
 
@@ -104,6 +118,8 @@ class Game:
 
     def run(self):
         while True:
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_x, mouse_y = mouse_pos
 
             keysrun = pygame.key.get_pressed()
 
@@ -136,6 +152,12 @@ class Game:
 
             self.player.move(self.largura, self.altura)
             templário = self.player.draw(self.tela)
+            
+            self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
+            sword_rect = self.sword.rect
+            self.sword.draw(self.tela)
+
+            s = self.item_diamante.draw(self.tela)
 
             s = self.item_diamante.draw(self.tela)
             g = self.item_moeda.draw(self.tela)
