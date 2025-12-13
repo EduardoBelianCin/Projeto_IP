@@ -33,9 +33,9 @@ def load_sprites_from_folder(folder):    # Animação do templário
 class Game:
 
     def __init__(self):
-        self.largura = 1920
-        self.altura = 1080
-        self.tela = pygame.display.set_mode((self.largura, self.altura))
+        self.tela = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        self.largura, self.altura = self.tela.get_size()
+        print(f"Dimensões da tela: {self.largura}x{self.altura}")
 
         pygame.display.set_caption('O Cruzado Aventureiro')
         pygame.display.set_icon(pygame.image.load('icone_teste.png'))
