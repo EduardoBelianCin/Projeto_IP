@@ -59,14 +59,14 @@ class Player:
             self.x += VX_NORM * self.speed       # Move o jogador na direção X
             self.y += VY_NORM * self.speed       # Move o jogador na direção Y
 
-        if self.x < 0:
-            self.x = 0
-        if self.x > largura - self.size:
-            self.x = largura - self.size
+        if self.x < 5:
+            self.x = 5
+        if self.x > largura - 80:
+            self.x = largura - 80
         if self.y < 0:
             self.y = 0
-        if self.y > altura - self.size:
-            self.y = altura - self.size
+        if self.y > altura - 100:
+            self.y = altura - 100
 
     def update_animation(self):
         agora = pygame.time.get_ticks()

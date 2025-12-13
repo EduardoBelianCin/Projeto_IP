@@ -1,4 +1,5 @@
 import pygame
+import os
 
 class Hud():
     def draw_hud(self, tela, font, pontos, diamantes, moedas, maçãs, vida, hud_sprites):
@@ -41,3 +42,18 @@ class Hud():
             tela.blit(sprite_vida, (10, 15))
 
         tela.blit(sprite_vida, (10, 15))
+
+    def load_hud_sprites(self, arquivos):    # Barra de vida
+        hud_sprites = {}
+        for filename in os.listdir(arquivos):
+            if filename.endswith(".png"):
+                key = os.path.splitext(filename)[0]
+                img = pygame.image.load(os.path.join(arquivos, filename)).convert_alpha()
+                img = pygame.transform.scale(img, (270, 30))
+                hud_sprites[key] = img
+        return hud_sprites
+    
+    def cursor_customizado(self):     # Cursor do mouse personalizado
+        self.cursor = pygame.image.load("sprites/cursor.png").convert_alpha()
+        pygame.mouse.set_visible(False)
+        return self.cursor

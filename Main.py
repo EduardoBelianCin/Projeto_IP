@@ -33,9 +33,12 @@ def load_sprites_from_folder(folder):    # Animação do templário
 class Game:
 
     def __init__(self):
-        self.tela = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
+        info = pygame.display.Info()
+        largura_desktop = info.current_w
+        altura_desktop = info.current_h
+        self.tela = pygame.display.set_mode((largura_desktop, altura_desktop), pygame.NOFRAME)
         self.largura, self.altura = self.tela.get_size()
-        print(f"Dimensões da tela: {self.largura}x{self.altura}")
 
         pygame.display.set_caption('O Cruzado Aventureiro')
         pygame.display.set_icon(pygame.image.load('icone_teste.png'))
@@ -45,17 +48,16 @@ class Game:
 
         # Carregar os sprites das animações
         self.sprites = load_sprites_from_folder("sprites")
-
         # Criar o jogador, passando os sprites
         self.player = Player(self.largura // 2, self.altura // 2, self.sprites)
 
-        self.cursor_customizado()
+        Hud().cursor_customizado()
 
         self.item_diamante = Diamante()
         self.item_moeda = Moeda()
         self.item_maçã = Maça()
 
-        self.BACKGROUND = pygame.image.load("Background_Game.png")                                 # Importa a imagem de background
+        self.BACKGROUND = pygame.image.load("Background_Game.png")   # Importa a imagem de background
         self.BACKEST = pygame.transform.scale(self.BACKGROUND, (self.largura, self.altura)) # Estica a imagem para o tamanho da janela
 
         self.pontos = 0
@@ -64,25 +66,11 @@ class Game:
         self.maçãs = 0
 
         self.vida = 100
-        self.hud_sprites = self.load_hud_sprites("sprites/hud/barra de vida")
+        self.hud_sprites = Hud().load_hud_sprites("sprites/hud/barra de vida")
 
         self.FULLSCREEN = False
 
         self.spawn_random_coin()
-
-    def load_hud_sprites(self, arquivos):    # Barra de vida
-        hud_sprites = {}
-        for filename in os.listdir(arquivos):
-            if filename.endswith(".png"):
-                key = os.path.splitext(filename)[0]
-                img = pygame.image.load(os.path.join(arquivos, filename)).convert_alpha()
-                img = pygame.transform.scale(img, (270, 30))
-                hud_sprites[key] = img
-        return hud_sprites
-    
-    def cursor_customizado(self):     # Cursor do mouse personalizado
-        self.cursor = pygame.image.load("sprites/cursor.png").convert_alpha()
-        pygame.mouse.set_visible(False)
 
     def spawn_random_coin(self):
         sorteio = randint(0, 20)
@@ -167,7 +155,7 @@ class Game:
             )
 
             mouse_pos = pygame.mouse.get_pos()
-            self.tela.blit(self.cursor, mouse_pos)
+            self.tela.blit(Hud().cursor_customizado(), mouse_pos)
 
             pygame.display.update()
 
