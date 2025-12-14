@@ -25,7 +25,7 @@ def load_sprites_from_folder(folder):    # Animação do templário
                 if os.path.exists(direction_folder):
                     for filename in os.listdir(direction_folder):
                         if filename.endswith(".png"):
-                            img = pygame.image.load(os.path.join(direction_folder, filename))
+                            img = pygame.image.load(os.path.join(direction_folder, filename)).convert_alpha()
                             img = pygame.transform.scale_by(img, 2)
                             sprites[state][direction].append(img)
         return sprites
@@ -57,8 +57,13 @@ class Game:
         self.item_moeda = Moeda()
         self.item_maçã = Maça()
 
-        self.BACKGROUND = pygame.image.load("Background_Game.png")   # Importa a imagem de background
+        ## ".convert()" ou ".convert_alpha()" melhora MUITO o desempenho das imagens e sprites, sem ele a performance cai.
+        self.BACKGROUND = pygame.image.load("Background_Game.png").convert_alpha()   # Importa a imagem de background
         self.BACKEST = pygame.transform.scale(self.BACKGROUND, (self.largura, self.altura)) # Estica a imagem para o tamanho da janela
+        self.BACKBOTTOM = pygame.image.load("Background_Game_Bottom.png").convert_alpha() ## Importa a imagem inferior para adicionar profundidade
+        self.BOTTOMEST = pygame.transform.scale(self.BACKBOTTOM, (self.largura, 60))
+        self.BACKLAT = pygame.image.load("Background_Game_Laterals.png").convert_alpha() ## Importa a imagem das laterais para adicionar profundidade
+        self.LATTEST = pygame.transform.scale(self.BACKLAT, (self.largura, self.altura))
 
         self.pontos = 0
         self.diamantes = 0
@@ -161,6 +166,13 @@ class Game:
 
             self.check_collisions(templário)
 
+            self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
+            sword_rect = self.sword.rect
+            self.sword.draw(self.tela)
+            
+            self.tela.blit(self.BOTTOMEST, (0, self.altura-60))
+            self.tela.blit(self.LATTEST, (0, 0))
+
             Hud().draw_hud(
                 self.tela,
                 self.font,
@@ -171,10 +183,6 @@ class Game:
                 self.vida,
                 self.hud_sprites
             )
-
-            self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
-            sword_rect = self.sword.rect
-            self.sword.draw(self.tela)
 
             mouse_pos = pygame.mouse.get_pos()
             self.tela.blit(Hud().cursor_customizado(), mouse_pos)

@@ -24,8 +24,8 @@ class Coin:
         limite_x = largura_tela - self.rect.width
         limite_y = altura_tela - self.rect.height
         
-        self.x = randint(0, limite_x)
-        self.y = randint(0, limite_y)
+        self.x = randint(20, limite_x-95)
+        self.y = randint(20, limite_y-100)
         self.rect.topleft = (self.x, self.y)
 
     def draw(self, tela):

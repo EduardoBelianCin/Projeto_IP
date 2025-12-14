@@ -59,10 +59,10 @@ class Player:
             self.x += VX_NORM * self.speed       # Move o jogador na direção X
             self.y += VY_NORM * self.speed       # Move o jogador na direção Y
 
-        if self.x < 5:
-            self.x = 5
-        if self.x > largura - 80:
-            self.x = largura - 80
+        if self.x < 20:
+            self.x = 20
+        if self.x > largura - 95:
+            self.x = largura - 95
         if self.y < 0:
             self.y = 0
         if self.y > altura - 100:
