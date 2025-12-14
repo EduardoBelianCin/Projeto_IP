@@ -86,7 +86,7 @@ class Game:
         mouse_pos = pygame.mouse.get_pos()
         mouse_x, mouse_y = mouse_pos
         
-        self.sword = Sword('sprites/templario/espada.png', 10, 80)
+        self.sword = Sword('sprites/templario/espada.png', 60)
         self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
         sword_rect = self.sword.rect
         self.sword.draw(self.tela)
@@ -156,19 +156,22 @@ class Game:
                     exit()
 
             self.player.move(self.largura, self.altura)
-            templário = self.player.draw(self.tela)
-
-            s = self.item_diamante.draw(self.tela)
-
-            s = self.item_diamante.draw(self.tela)
-            g = self.item_moeda.draw(self.tela)
-            r = self.item_maçã.draw(self.tela)
-
-            self.check_collisions(templário)
 
             self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
-            sword_rect = self.sword.rect
-            self.sword.draw(self.tela)
+
+            # Ordem de desenho (profundidade)
+            if self.sword.behind_player:
+                templário = self.player.draw(self.tela)
+                self.sword.draw(self.tela)
+            else:
+                self.sword.draw(self.tela)
+                templário = self.player.draw(self.tela)
+
+            d = self.item_diamante.draw(self.tela)
+            o = self.item_moeda.draw(self.tela)
+            m = self.item_maçã.draw(self.tela)
+
+            self.check_collisions(templário)
             
             self.tela.blit(self.BOTTOMEST, (0, self.altura-60))
             self.tela.blit(self.LATTEST, (0, 0))

@@ -82,40 +82,36 @@ class Player:
         return pygame.Rect(self.x, self.y, self.size, self.size)
     
 class Sword(pygame.sprite.Sprite):
-    def __init__(self, image_path, rotation_speed, radius):
+    def __init__(self, image_path, radius):
         super().__init__()
         self.original_image = pygame.image.load(image_path).convert_alpha()
-        self.original_image = pygame.transform.scale_by(self.original_image, 2)  # Ajuste o tamanho
+        self.original_image = pygame.transform.scale_by(self.original_image, 2)
         self.image = self.original_image
         self.rect = self.image.get_rect()
-
-        self.rotation_speed = rotation_speed # Velocidade em graus por frame
-        self.radius = radius # Raio de rotação em torno do jogador
-        self.angle = 0 # Ângulo inicial em graus
+        self.radius = radius
+        self.behind_player = False
 
     def update(self, player_x, player_y, mouse_x, mouse_y):
-        player_center_x = player_x + 30 
-        player_center_y = player_y + 30
-        
-        dx_mouse = mouse_x - player_center_x
-        dy_mouse = mouse_y - player_center_y
+        player_center_x = player_x + 30
+        player_center_y = player_y + 40
 
-        target_angle_rad = atan2(dy_mouse, dx_mouse)
-        target_angle_deg = degrees(target_angle_rad)
-        
-        offset_x = self.radius * cos(target_angle_rad)
-        offset_y = self.radius * sin(target_angle_rad)
+        dx = mouse_x - player_center_x
+        dy = mouse_y - player_center_y
 
-        new_center_x = player_center_x + offset_x
-        new_center_y = player_center_y + offset_y
+        angle_rad = atan2(dy, dx)
+        angle_deg = degrees(angle_rad)
 
-        final_rotation = target_angle_deg + 225
-        
-        final_rotation = target_angle_deg + 180 - 45 
+        # Define profundidade
+        self.behind_player = angle_deg > 0
 
-        self.image = pygame.transform.rotate(self.original_image, -final_rotation)
+        offset_x = self.radius * cos(angle_rad)
+        offset_y = self.radius * sin(angle_rad)
 
-        self.rect = self.image.get_rect(center=(new_center_x, new_center_y))
+        new_x = player_center_x + offset_x
+        new_y = player_center_y + offset_y
+
+        self.image = pygame.transform.rotate(self.original_image, -(angle_deg + 135))
+        self.rect = self.image.get_rect(center=(new_x, new_y))
 
     def draw(self, tela):
         tela.blit(self.image, self.rect)
