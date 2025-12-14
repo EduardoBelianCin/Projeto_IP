@@ -152,10 +152,6 @@ class Game:
 
             self.player.move(self.largura, self.altura)
             templário = self.player.draw(self.tela)
-            
-            self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
-            sword_rect = self.sword.rect
-            self.sword.draw(self.tela)
 
             s = self.item_diamante.draw(self.tela)
 
@@ -175,6 +171,10 @@ class Game:
                 self.vida,
                 self.hud_sprites
             )
+
+            self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
+            sword_rect = self.sword.rect
+            self.sword.draw(self.tela)
 
             mouse_pos = pygame.mouse.get_pos()
             self.tela.blit(Hud().cursor_customizado(), mouse_pos)
