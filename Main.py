@@ -10,24 +10,22 @@ from hud import Hud
 pygame.init()
 
 def load_sprites_from_folder(folder):    # Animação do templário
-        directions = ['Back', 'Front', 'Left', 'Right']
         sprites = {}
 
         templario_folder = os.path.join(folder, "templario")
 
         for state in ['Idle', 'Walk']:
-            sprites[state] = {}
+            sprites[state] = []
 
-            for direction in directions:
-                direction_folder = os.path.join(templario_folder, state, direction)
-                sprites[state][direction] = []
+            state_folder = os.path.join(templario_folder, state)
 
-                if os.path.exists(direction_folder):
-                    for filename in os.listdir(direction_folder):
-                        if filename.endswith(".png"):
-                            img = pygame.image.load(os.path.join(direction_folder, filename)).convert_alpha()
-                            img = pygame.transform.scale_by(img, 2)
-                            sprites[state][direction].append(img)
+            if os.path.exists(state_folder):
+                filenames = [f for f in os.listdir(state_folder) if f.endswith(".png")]
+
+                for filename in filenames:
+                    img = pygame.image.load(os.path.join(state_folder, filename)).convert_alpha()
+                    img = pygame.transform.scale_by(img, 2)
+                    sprites[state].append(img)
         return sprites
 
 class Game:

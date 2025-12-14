@@ -10,11 +10,13 @@ class Player:
         self.color = (150, 0, 200)
         self.speed = 10
         self.state = "Idle"        # Põe a animação inicila como "Parado"
-        self.direction = "Front"   # põe a direção inicial como sendo de frente
+        self.right = True   # põe a direção inicial como sendo de frente
 
         self.sprites = sprites
         self.frame_index = 0
-        self.current_sprite = self.sprites[self.state][self.direction][self.frame_index]
+
+        self.current_sprite = self.sprites[self.state][self.frame_index]
+        
         self.animacao_speed = 300
         self.last_update = pygame.time.get_ticks()
 
@@ -22,30 +24,27 @@ class Player:
         keys = pygame.key.get_pressed()
 
         estado_anterior = self.state
-        direção_anterior = self.direction
 
         VX = 0 # Reinicia a coordenada X
         VY = 0 # Reinicia a coordenada Y
         
         if keys[K_a]:
             VX -= 1                   # Declara a coordenada de X como negativa
-            self.direction = "Left"   # Define para qual direção ele deve ta olhando
+            self.right = False
         if keys[K_d]:
             VX += 1                   # Declara a coordenada de X como positiva
-            self.direction = "Right"
+            self.right = True
         if keys[K_w]:
             VY -= 1                   # Declara a coordenada de Y como negativa
-            self.direction = "Back"
         if keys[K_s]:
             VY += 1                   # Declara a coordenada de Y como positiva
-            self.direction = "Front"
 
         if VX != 0 or VY != 0:
-            self.state = "Walk"  # Se o jogador se move, a animação é "run"
+            self.state = "Walk"  # Se o jogador se move, a animação é "walk"
         else:
             self.state = "Idle"  # Caso contrário, é "idle"
 
-        if self.state != estado_anterior or self.direction != direção_anterior:
+        if self.state != estado_anterior:
             self.frame_index = 0
             self.last_update = pygame.time.get_ticks()
 
@@ -71,10 +70,17 @@ class Player:
     def update_animation(self):
         agora = pygame.time.get_ticks()
 
+        current_frame = self.sprites[self.state][self.frame_index]
+
         if agora - self.last_update > self.animacao_speed:
             self.last_update = agora
-            self.frame_index = (self.frame_index + 1) % len(self.sprites[self.state][self.direction])
-        self.current_sprite = self.sprites[self.state][self.direction][self.frame_index]
+            self.frame_index = (self.frame_index + 1) % len(self.sprites[self.state])
+            current_frame = self.sprites[self.state][self.frame_index]
+
+        if self.right:
+            self.current_sprite = pygame.transform.flip(current_frame, True, False)
+        else:
+            self.current_sprite = current_frame
 
     def draw(self, tela):
         tela.blit(self.current_sprite, (self.x, self.y))  # Desenha o sprite na tela
