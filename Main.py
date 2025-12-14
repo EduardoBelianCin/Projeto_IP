@@ -38,7 +38,7 @@ class Game:
         self.tela = pygame.display.set_mode((largura_desktop, altura_desktop), pygame.NOFRAME)
         self.largura, self.altura = self.tela.get_size()
 
-        pygame.display.set_caption('O Cruzado Aventureiro')
+        pygame.display.set_caption('A Lenda da Cruzada')
         pygame.display.set_icon(pygame.image.load('icone_teste.png'))
 
         self.relogio = pygame.time.Clock()
