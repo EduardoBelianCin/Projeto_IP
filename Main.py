@@ -159,6 +159,10 @@ class Game:
 
             self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
 
+            d = self.item_diamante.draw(self.tela)
+            o = self.item_moeda.draw(self.tela)
+            m = self.item_maçã.draw(self.tela)
+
             # Ordem de desenho (profundidade)
             if self.sword.behind_player:
                 templário = self.player.draw(self.tela)
@@ -166,10 +170,6 @@ class Game:
             else:
                 self.sword.draw(self.tela)
                 templário = self.player.draw(self.tela)
-
-            d = self.item_diamante.draw(self.tela)
-            o = self.item_moeda.draw(self.tela)
-            m = self.item_maçã.draw(self.tela)
 
             self.check_collisions(templário)
             
