@@ -8,6 +8,14 @@ from coletaveis import *
 from hud import Hud
 
 pygame.init()
+pygame.mixer.init()
+
+som_maca = pygame.mixer.Sound("Audios/Successo.wav")
+som_moeda = pygame.mixer.Sound("Audios/SuccessInfographic.ogg")
+som_dima = pygame.mixer.Sound("Audios/Success_3.wav")
+som_maca.set_volume(0.2)
+som_moeda.set_volume(0.2)
+som_dima.set_volume(0.2)
 
 def load_sprites_from_folder(folder):    # Animação do templário
         sprites = {}
@@ -68,7 +76,7 @@ class Game:
         self.moedas = 0
         self.maçãs = 0
 
-        self.vida = 100
+        self.vida = 50
         self.hud_sprites = Hud().load_hud_sprites("sprites/hud/barra de vida")
 
         self.FULLSCREEN = False
@@ -107,16 +115,19 @@ class Game:
         if templário.colliderect(pygame.Rect(self.item_diamante.x+40, self.item_diamante.y, 10, 20)):
             self.diamantes += 1
             self.pontos += self.item_diamante.value
+            som_dima.play()
             self.spawn_random_coin()
 
         if templário.colliderect(pygame.Rect(self.item_moeda.x+40, self.item_moeda.y, 10, 20)):
             self.moedas += 1
             self.pontos += self.item_moeda.value
+            som_moeda.play()
             self.spawn_random_coin()
 
         if templário.colliderect(pygame.Rect(self.item_maçã.x+40, self.item_maçã.y, 10, 20)):
             self.maçãs += 1
             self.vida = min(100, self.vida + self.item_maçã.value)
+            som_maca.play()
             self.spawn_random_coin()
 
     def run(self):
