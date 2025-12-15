@@ -14,7 +14,8 @@ class Coin:
         imagem_original = pygame.image.load(caminho).convert_alpha()
         self.image = pygame.transform.scale(imagem_original, (88, 48))
 
-        self.rect = self.image.get_rect()
+        self.sprite = pygame.image.load(f"sprites/itens/{nome_da_imagem}").convert_alpha()
+        self.rect = self.sprite.get_rect()
         
         self.x = 10000
         self.y = 10000
@@ -39,6 +40,14 @@ class Coin:
         self.rect.topleft = (self.x, self.y)
         tela.blit(self.image, self.rect)
         return self.rect
+    
+    def get_hitbox(self):
+        hitbox_largura = 25
+        hitbox_altura = 25
+        hitbox_dx = 33
+        hitbox_dy = 12
+
+        return pygame.Rect(self.x + hitbox_dx, self.y + hitbox_dy, hitbox_largura, hitbox_altura)
 
 class Diamante(Coin):
     def __init__(self):

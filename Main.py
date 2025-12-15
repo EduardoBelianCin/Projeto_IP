@@ -6,6 +6,7 @@ from random import randint
 from cruzado import *
 from coletaveis import *
 from hud import Hud
+from inimigos import *
 
 pygame.init()
 pygame.mixer.init()
@@ -92,7 +93,7 @@ class Game:
         mouse_pos = pygame.mouse.get_pos()
         mouse_x, mouse_y = mouse_pos
         
-        self.sword = Sword('sprites/templario/espada.png', 60)
+        self.sword = Sword('sprites/templario/espada.png', 60, 90)
         self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
         sword_rect = self.sword.rect
         self.sword.draw(self.tela)
@@ -111,47 +112,36 @@ class Game:
         else:
             self.item_diamante.reposition(self.largura, self.altura)
 
-    def check_collisions(self, templário):    # Ação de coleta dos itens
-        if templário.colliderect(pygame.Rect(self.item_diamante.x+40, self.item_diamante.y, 10, 20)):
+    def check_collisions(self, templário):
+        # Ação de coleta dos itens
+        if templário.colliderect(self.item_diamante.get_hitbox()):
             self.diamantes += 1
             self.pontos += self.item_diamante.value
             som_dima.play()
             self.spawn_random_coin()
-
-        if templário.colliderect(pygame.Rect(self.item_moeda.x+40, self.item_moeda.y, 10, 20)):
+        if templário.colliderect(self.item_moeda.get_hitbox()):
             self.moedas += 1
             self.pontos += self.item_moeda.value
             som_moeda.play()
             self.spawn_random_coin()
-
-        if templário.colliderect(pygame.Rect(self.item_maçã.x+40, self.item_maçã.y, 10, 20)):
+        if templário.colliderect(self.item_maçã.get_hitbox()):
             self.maçãs += 1
             self.vida = min(100, self.vida + self.item_maçã.value)
             som_maca.play()
+            self.spawn_random_coin()
+
+        # Ação de destruir itens
+        if self.sword.draw(self.tela).colliderect(self.item_diamante.get_hitbox()):
+            self.spawn_random_coin()
+        if self.sword.draw(self.tela).colliderect(self.item_moeda.get_hitbox()):
+            self.spawn_random_coin()
+        if self.sword.draw(self.tela).colliderect(self.item_maçã.get_hitbox()):
             self.spawn_random_coin()
 
     def run(self):
         while True:
             mouse_pos = pygame.mouse.get_pos()
             mouse_x, mouse_y = mouse_pos
-
-            keysrun = pygame.key.get_pressed()
-
-            if keysrun[K_F11]:
-                if self.FULLSCREEN==False:
-                    self.BACKEST = pygame.transform.scale(self.BACKGROUND, (self.largura, self.altura)) 
-                    self.tela = pygame.display.set_mode((self.largura, self.altura), pygame.FULLSCREEN)
-                    self.FULLSCREEN=True
-
-                    while(bool(self.tela.get_flags() & pygame.FULLSCREEN)==False):
-                        self.FULLSCREEN=True
-                elif self.FULLSCREEN==True:
-                    self.BACKEST = pygame.transform.scale(self.BACKGROUND, (self.largura, self.altura)) 
-                    self.tela = pygame.display.set_mode((self.largura, self.altura))
-                    self.FULLSCREEN=False
-                    
-                    while(bool(self.tela.get_flags() & pygame.FULLSCREEN)==True):
-                        self.FULLSCREEN=False
 
             self.relogio.tick(30)
 
@@ -179,6 +169,12 @@ class Game:
             else:
                 self.sword.draw(self.tela)
                 templário = self.player.draw(self.tela)
+            #EXIBIÇÃO APENAS PARA VISUALIZAR-----------------------------------------------------
+            pygame.draw.rect(self.tela, (255, 0, 0), self.sword.draw(self.tela), 2)
+            pygame.draw.rect(self.tela, (255, 0, 0), templário, 2)
+            pygame.draw.rect(self.tela, (255, 0, 0), self.item_diamante.get_hitbox(), 2)
+            pygame.draw.rect(self.tela, (255, 0, 0), self.item_moeda.get_hitbox(), 2)
+            pygame.draw.rect(self.tela, (255, 0, 0), self.item_maçã.get_hitbox(), 2)
 
             self.check_collisions(templário)
             

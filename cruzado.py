@@ -85,17 +85,21 @@ class Player:
     def draw(self, tela):
         tela.blit(self.current_sprite, (self.x, self.y))  # Desenha o sprite na tela
 
-        return pygame.Rect(self.x, self.y, self.size, self.size)
+        hitbox_rect = pygame.Rect(self.x + 15, self.y + 8, 40, 60)
+        return hitbox_rect
     
 class Sword(pygame.sprite.Sprite):
-    def __init__(self, image_path, radius):
+    def __init__(self, image_path, radius, hitbox_radius):
         super().__init__()
         self.original_image = pygame.image.load(image_path).convert_alpha()
         self.original_image = pygame.transform.scale_by(self.original_image, 2)
         self.image = self.original_image
         self.rect = self.image.get_rect()
         self.radius = radius
+        self.hitbox_radius = hitbox_radius
         self.behind_player = False
+        self.angle_rad = 0
+        self.hitbox_center = (0, 0)
 
     def update(self, player_x, player_y, mouse_x, mouse_y):
         player_center_x = player_x + 30
@@ -103,15 +107,14 @@ class Sword(pygame.sprite.Sprite):
 
         dx = mouse_x - player_center_x
         dy = mouse_y - player_center_y
+        
+        self.angle_rad = atan2(dy, dx)
+        angle_deg = degrees(self.angle_rad)
 
-        angle_rad = atan2(dy, dx)
-        angle_deg = degrees(angle_rad)
-
-        # Define profundidade
         self.behind_player = angle_deg > 0
 
-        offset_x = self.radius * cos(angle_rad)
-        offset_y = self.radius * sin(angle_rad)
+        offset_x = self.radius * cos(self.angle_rad)
+        offset_y = self.radius * sin(self.angle_rad)
 
         new_x = player_center_x + offset_x
         new_y = player_center_y + offset_y
@@ -119,5 +122,22 @@ class Sword(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.original_image, -(angle_deg + 135))
         self.rect = self.image.get_rect(center=(new_x, new_y))
 
+        hitbox_offset_x = self.hitbox_radius * cos(self.angle_rad)
+        hitbox_offset_y = self.hitbox_radius * sin(self.angle_rad)
+        
+        hitbox_center_x = player_center_x + hitbox_offset_x
+        hitbox_center_y = player_center_y + hitbox_offset_y
+        self.hitbox_center = (hitbox_center_x, hitbox_center_y)
+
     def draw(self, tela):
         tela.blit(self.image, self.rect)
+
+        hitbox_largura = 30
+        hitbox_altura = 30
+        
+        hitbox_rect = pygame.Rect(0, 0, hitbox_largura, hitbox_altura)
+        hitbox_rect.center = (int(self.hitbox_center[0]), int(self.hitbox_center[1]))
+
+        pygame.draw.rect(tela, (255,0,0), hitbox_rect, 2)
+
+        return hitbox_rect
