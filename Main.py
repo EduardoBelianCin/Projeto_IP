@@ -102,7 +102,7 @@ class Game:
     def spawn_random_coin(self):
         classe_do_novo_item = choice(classes_coletaveis)
         novo_item = classe_do_novo_item(0,0)
-        novo_item.reposition(1920, 1080)
+        novo_item.reposition(self.largura, self.altura)
         self.coletaveis_ativos.append(novo_item)
 
     def check_collisions(self, templário, sword_rect):
@@ -124,7 +124,6 @@ class Game:
                     som_moeda.play()
                 elif isinstance(item, Maça):
                     self.maçãs += 1
-                    # Nota: O valor da Maçã deve ser a cura (se for 0 no __init__, altere-o)
                     self.vida = min(100, self.vida + item.value) 
                     som_maca.play()
                 coletados.append(item) # Marca para remoção
@@ -170,8 +169,8 @@ class Game:
             else:
                 templário = self.player.draw(self.tela)
             #EXIBIÇÃO APENAS PARA VISUALIZAR-----------------------------------------------------
-            pygame.draw.rect(self.tela, (255, 0, 0), self.sword.draw(self.tela), 2)
-            pygame.draw.rect(self.tela, (255, 0, 0), templário, 2)
+            # pygame.draw.rect(self.tela, (255, 0, 0), self.sword.draw(self.tela), 2)
+            # pygame.draw.rect(self.tela, (255, 0, 0), templário, 2)
 
             self.check_collisions(templário, self.rect)
             

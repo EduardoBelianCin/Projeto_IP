@@ -22,15 +22,15 @@ class Coin:
         self.rect.topleft = (self.x, self.y)
 
     def reposition(self, largura_tela, altura_tela):
-        limite_x = largura_tela - self.rect.width
-        limite_y = altura_tela - self.rect.height
+        limite_x = largura_tela - 30
+        limite_y = altura_tela - 30
 
-        Pos_x = randint(20, limite_x-95)
-        Pos_y = randint(20, limite_y-100)
+        Pos_x = randint(30, limite_x-30)
+        Pos_y = randint(30, limite_y-30)
         # Gera Novamente caso tenha ficado embaixo da HUD
         while(Pos_x < 295 and Pos_y < 175):
-            Pos_x = randint(20, limite_x-95)
-            Pos_y = randint(20, limite_y-100)
+            Pos_x = randint(30, limite_x-30)
+            Pos_y = randint(30, limite_y-30)
         
         self.x = Pos_x
         self.y = Pos_y
