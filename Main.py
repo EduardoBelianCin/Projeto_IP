@@ -158,19 +158,21 @@ class Game:
             self.player.move(self.largura, self.altura)
             self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
             self.rect = self.sword.draw(self.tela)
-
             for item in self.coletaveis_ativos:
-                item.draw(self.tela)
-                pygame.draw.rect(self.tela, (255,0,0), item.get_hitbox(), 2)
+                 item.draw(self.tela)
 
             # Ordem de desenho (profundidade)
             if self.sword.behind_player:
                 templário = self.player.draw(self.tela)
+                self.sword.draw(self.tela)
             else:
+                self.sword.draw(self.tela)
                 templário = self.player.draw(self.tela)
             #EXIBIÇÃO APENAS PARA VISUALIZAR-----------------------------------------------------
             # pygame.draw.rect(self.tela, (255, 0, 0), self.sword.draw(self.tela), 2)
             # pygame.draw.rect(self.tela, (255, 0, 0), templário, 2)
+            # for item in self.coletaveis_ativos:
+            #     pygame.draw.rect(self.tela, (255,0,0), item.get_hitbox(), 2)
 
             self.check_collisions(templário, self.rect)
             

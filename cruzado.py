@@ -138,6 +138,4 @@ class Sword(pygame.sprite.Sprite):
         hitbox_rect = pygame.Rect(0, 0, hitbox_largura, hitbox_altura)
         hitbox_rect.center = (int(self.hitbox_center[0]), int(self.hitbox_center[1]))
 
-        pygame.draw.rect(tela, (255,0,0), hitbox_rect, 2)
-
         return hitbox_rect
