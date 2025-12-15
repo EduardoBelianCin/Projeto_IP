@@ -6,7 +6,7 @@ PASTA_ATUAL = os.path.dirname(os.path.abspath(__file__))
 PASTA_ITENS = os.path.join(PASTA_ATUAL, "sprites", "itens")
 
 class Coin:
-    def __init__(self, nome_da_imagem, pontos):
+    def __init__(self, x, y, nome_da_imagem, pontos):
         self.value = pontos
         
         caminho = os.path.join(PASTA_ITENS, nome_da_imagem)
@@ -50,13 +50,13 @@ class Coin:
         return pygame.Rect(self.x + hitbox_dx, self.y + hitbox_dy, hitbox_largura, hitbox_altura)
 
 class Diamante(Coin):
-    def __init__(self):
-        super().__init__("diamante.png", 50)
+    def __init__(self, x, y):
+        super().__init__(x, y, "diamante.png", 50)
 
 class Moeda(Coin):
-    def __init__(self):
-        super().__init__("moeda.png", 10)
+    def __init__(self, x, y):
+        super().__init__(x, y, "moeda.png", 10)
 
 class Maça(Coin):
-    def __init__(self):
-        super().__init__("maca.png", 10)
+    def __init__(self, x, y):
+        super().__init__(x, y, "maca.png", 10)

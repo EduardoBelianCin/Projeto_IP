@@ -2,7 +2,7 @@ import pygame
 import os
 from pygame.locals import *
 from sys import exit
-from random import randint
+from random import randint, choice
 from cruzado import *
 from coletaveis import *
 from hud import Hud
@@ -17,6 +17,9 @@ som_dima = pygame.mixer.Sound("Audios/Success_3.wav")
 som_maca.set_volume(0.2)
 som_moeda.set_volume(0.2)
 som_dima.set_volume(0.2)
+spawn_item_event = pygame.USEREVENT + 1
+intervalo_spawn = 3000
+classes_coletaveis = [Diamante, Moeda, Maça]
 
 def load_sprites_from_folder(folder):    # Animação do templário
         sprites = {}
@@ -42,9 +45,9 @@ class Game:
     def __init__(self):
 
         info = pygame.display.Info()
-        largura_desktop = info.current_w
-        altura_desktop = info.current_h
-        self.tela = pygame.display.set_mode((largura_desktop, altura_desktop), pygame.NOFRAME)
+        self.largura_desktop = info.current_w
+        self.altura_desktop = info.current_h
+        self.tela = pygame.display.set_mode((self.largura_desktop, self.altura_desktop), pygame.NOFRAME)
         self.largura, self.altura = self.tela.get_size()
 
         pygame.display.set_caption('A Lenda da Cruzada')
@@ -60,9 +63,7 @@ class Game:
 
         Hud().cursor_customizado()
 
-        self.item_diamante = Diamante()
-        self.item_moeda = Moeda()
-        self.item_maçã = Maça()
+        self.coletaveis_ativos = []
 
         ## ".convert()" ou ".convert_alpha()" melhora MUITO o desempenho das imagens e sprites, sem ele a performance cai.
         self.BACKGROUND = pygame.image.load("Background_Game.png").convert_alpha()   # Importa a imagem de background
@@ -82,7 +83,7 @@ class Game:
 
         self.FULLSCREEN = False
 
-        self.spawn_random_coin()
+        pygame.time.set_timer(spawn_item_event, intervalo_spawn)
 
         self.hud_sprites = Hud().load_hud_sprites("sprites/hud/barra de vida")
 
@@ -99,44 +100,43 @@ class Game:
         self.sword.draw(self.tela)
 
     def spawn_random_coin(self):
-        sorteio = randint(0, 20)
+        classe_do_novo_item = choice(classes_coletaveis)
+        novo_item = classe_do_novo_item(0,0)
+        novo_item.reposition(1920, 1080)
+        self.coletaveis_ativos.append(novo_item)
 
-        self.item_diamante.x = self.item_diamante.y = 10000
-        self.item_moeda.x = self.item_moeda.y = 10000
-        self.item_maçã.x = self.item_maçã.y = 10000
-
-        if sorteio in range(14, 21):
-            self.item_maçã.reposition(self.largura, self.altura)
-        elif sorteio in range(7, 21):
-            self.item_moeda.reposition(self.largura, self.altura)
-        else:
-            self.item_diamante.reposition(self.largura, self.altura)
-
-    def check_collisions(self, templário):
+    def check_collisions(self, templário, sword_rect):
         # Ação de coleta dos itens
-        if templário.colliderect(self.item_diamante.get_hitbox()):
-            self.diamantes += 1
-            self.pontos += self.item_diamante.value
-            som_dima.play()
-            self.spawn_random_coin()
-        if templário.colliderect(self.item_moeda.get_hitbox()):
-            self.moedas += 1
-            self.pontos += self.item_moeda.value
-            som_moeda.play()
-            self.spawn_random_coin()
-        if templário.colliderect(self.item_maçã.get_hitbox()):
-            self.maçãs += 1
-            self.vida = min(100, self.vida + self.item_maçã.value)
-            som_maca.play()
-            self.spawn_random_coin()
+        coletados = [] # Lista para marcar itens que devem ser removidos
 
-        # Ação de destruir itens
-        if self.sword.draw(self.tela).colliderect(self.item_diamante.get_hitbox()):
-            self.spawn_random_coin()
-        if self.sword.draw(self.tela).colliderect(self.item_moeda.get_hitbox()):
-            self.spawn_random_coin()
-        if self.sword.draw(self.tela).colliderect(self.item_maçã.get_hitbox()):
-            self.spawn_random_coin()
+        for item in self.coletaveis_ativos:
+            hitbox_item = item.get_hitbox()
+            
+            # Ação de coleta (Colisão entre Jogador e Item)
+            if templário.colliderect(hitbox_item):
+                if isinstance(item, Diamante):
+                    self.diamantes += 1
+                    self.pontos += item.value
+                    som_dima.play()
+                elif isinstance(item, Moeda):
+                    self.moedas += 1
+                    self.pontos += item.value
+                    som_moeda.play()
+                elif isinstance(item, Maça):
+                    self.maçãs += 1
+                    # Nota: O valor da Maçã deve ser a cura (se for 0 no __init__, altere-o)
+                    self.vida = min(100, self.vida + item.value) 
+                    som_maca.play()
+                coletados.append(item) # Marca para remoção
+
+            # Ação de destruir (Colisão entre Espada e Item)
+            if sword_rect.colliderect(hitbox_item):
+                coletados.append(item) # Marca para remoção
+        
+        # Remove os itens coletados ou destruídos da lista de ativos
+        for item in coletados:
+            if item in self.coletaveis_ativos:
+                self.coletaveis_ativos.remove(item)
 
     def run(self):
         while True:
@@ -146,7 +146,6 @@ class Game:
             self.relogio.tick(30)
 
             self.tela.fill((0, 0, 0))
-
             self.tela.blit(self.BACKEST, (0, 0))
 
             for event in pygame.event.get():
@@ -154,29 +153,27 @@ class Game:
                     pygame.quit()
                     exit()
 
+                if event.type == spawn_item_event:
+                    self.spawn_random_coin()
+
             self.player.move(self.largura, self.altura)
-
             self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
+            self.rect = self.sword.draw(self.tela)
 
-            d = self.item_diamante.draw(self.tela)
-            o = self.item_moeda.draw(self.tela)
-            m = self.item_maçã.draw(self.tela)
+            for item in self.coletaveis_ativos:
+                item.draw(self.tela)
+                pygame.draw.rect(self.tela, (255,0,0), item.get_hitbox(), 2)
 
             # Ordem de desenho (profundidade)
             if self.sword.behind_player:
                 templário = self.player.draw(self.tela)
-                self.sword.draw(self.tela)
             else:
-                self.sword.draw(self.tela)
                 templário = self.player.draw(self.tela)
             #EXIBIÇÃO APENAS PARA VISUALIZAR-----------------------------------------------------
             pygame.draw.rect(self.tela, (255, 0, 0), self.sword.draw(self.tela), 2)
             pygame.draw.rect(self.tela, (255, 0, 0), templário, 2)
-            pygame.draw.rect(self.tela, (255, 0, 0), self.item_diamante.get_hitbox(), 2)
-            pygame.draw.rect(self.tela, (255, 0, 0), self.item_moeda.get_hitbox(), 2)
-            pygame.draw.rect(self.tela, (255, 0, 0), self.item_maçã.get_hitbox(), 2)
 
-            self.check_collisions(templário)
+            self.check_collisions(templário, self.rect)
             
             self.tela.blit(self.BOTTOMEST, (0, self.altura-60))
             self.tela.blit(self.LATTEST, (0, 0))
