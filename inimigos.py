@@ -12,7 +12,11 @@ class Inimigo(pygame.sprite.Sprite):
         self.largura_desktop = info.current_w
         self.altura_desktop = info.current_h
 
-        self.image = pygame.Surface((40, 40))
+        if sprites:
+            self.sprites = sprites
+            self.image = self.sprites.get[0]
+        else:
+            self.image = pygame.Surface((40, 40))
         self.rect = self.image.get_rect(topleft=(x, y))
         self.vida = vida
         self.velocidade = velocidade
@@ -56,7 +60,7 @@ class Bruxa(Inimigo):
         self.frame_atual = 0
         self.timer_animacao = pygame.time.get_ticks()
         self.velocidade_animacao = 150
-        self.sprites_fly = self.sprites.get('Fly_Bruxa', [])
+        self.sprites_fly = self.sprites.get('fly', [])
 
         self.pos_destino_esq = (0, randint(0, altura_segura))
         self.pos_destino_dir = (largura_segura, randint(0, altura_segura))
