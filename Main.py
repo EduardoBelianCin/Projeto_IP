@@ -171,7 +171,7 @@ class Game:
                 self.coletaveis_ativos.remove(item)
 
     #  Função da Tela de Vitória 
-    def exibir_vitoria(self):
+    def exibir_vitoria(self, mouse_pos):
         self.tela.fill((20, 20, 40))
         agora = pygame.time.get_ticks()
         if agora - self.timer_animacao > 100:
@@ -190,7 +190,6 @@ class Game:
         self.tela.blit(txt2, txt2.get_rect(center=(self.largura/2, self.altura/2 - 70)))
         
         # Desenhar botão "Jogar Novamente"
-        mouse_pos = pygame.mouse.get_pos()
         cor_botao = (50, 150, 50) if self.botao_rect.collidepoint(mouse_pos) else (30, 100, 30)
         
         pygame.draw.rect(self.tela, cor_botao, self.botao_rect, border_radius=10)
@@ -210,7 +209,7 @@ class Game:
             tempo_atual = pygame.time.get_ticks() # Precisa disso para o timer
 
             # adicionei o cheque de vitoria 
-            if self.pontos >= 1000 and not self.fim_de_jogo:
+            if self.pontos >= 100 and not self.fim_de_jogo:
                 self.fim_de_jogo = True
                 self.inicio_vitoria_tempo = tempo_atual
                 som_vitoria.play()
@@ -221,15 +220,14 @@ class Game:
                         pygame.quit()
                         exit()
                     
-                    # Detectar clique no botão
-                    if event.type == MOUSEBUTTONDOWN:
-                        if self.botao_rect.collidepoint(mouse_pos):
+                    # Detectar clique no botão (apenas com botão esquerdo do mouse)
+                    if event.type == MOUSEBUTTONDOWN and event.button == 1:
+                        if self.botao_rect.collidepoint(event.pos):
                             self.reiniciar_jogo()
                 
-                self.exibir_vitoria()
+                self.exibir_vitoria(mouse_pos)
                 
                 # Desenhar cursor customizado na tela de vitória
-                mouse_pos = pygame.mouse.get_pos()
                 self.tela.blit(Hud().cursor_customizado(), mouse_pos)
             else:
             # (DAQUI PARA BAIXO É O CÓDIGO ORIGINAL, SÓ INDENTADO)
