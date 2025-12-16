@@ -23,8 +23,12 @@ som_maca.set_volume(0.2)
 som_moeda.set_volume(0.2)
 som_dima.set_volume(0.2)
 spawn_item_event = pygame.USEREVENT + 1
-intervalo_spawn = 3000
+intervalo_spawn_item = 3000
 classes_coletaveis = [Diamante, Moeda, Maça]
+
+spawn_enemy_event = pygame.USEREVENT + 2
+intervalo_spawn_enemy = 5432
+classes_inimigos = [Morcego, Bruxa]
 
 def load_sprites_from_folder(folder):    # Animação do templário
         sprites = {}
@@ -69,8 +73,9 @@ class Game:
         Hud().cursor_customizado()
 
         self.coletaveis_ativos = []
+        self.inimigos_ativos = []
+        self.grupo_inimigos = pygame.sprite.Group()
 
-        ##".convert()" ou ".convert_alpha()" melhora MUITO o desempenho das imagens e sprites, sem ele a performance cai.
         self.BACKGROUND = pygame.image.load("Background_Game.png").convert_alpha()   # Importa a imagem de background
         self.BACKEST = pygame.transform.scale(self.BACKGROUND, (self.largura, self.altura)) # Estica a imagem para o tamanho da janela
         self.BACKBOTTOM = pygame.image.load("Background_Game_Bottom.png").convert_alpha() ## Importa a imagem inferior para adicionar profundidade
@@ -82,19 +87,18 @@ class Game:
         self.diamantes = 0
         self.moedas = 0
         self.maçãs = 0
-
+        self.fase = 1
         self.vida = 50
-        self.hud_sprites = Hud().load_hud_sprites("sprites/hud/barra de vida")
 
-        self.FULLSCREEN = False
-
-        pygame.time.set_timer(spawn_item_event, intervalo_spawn)
+        pygame.time.set_timer(spawn_item_event, intervalo_spawn_item)
+        pygame.time.set_timer(spawn_enemy_event, intervalo_spawn_enemy)
 
         self.hud_sprites = Hud().load_hud_sprites("sprites/hud/barra de vida")
 
         self.FULLSCREEN = False
 
         self.spawn_random_coin()
+        self.spawn_random_enemy()
         
         mouse_pos = pygame.mouse.get_pos()
         mouse_x, mouse_y = mouse_pos
@@ -138,7 +142,7 @@ class Game:
         self.textos_flutuantes = []
         
     def adicionar_texto_flutuante(self, texto, x, y, cor):
-        """Adiciona um texto flutuante na posição especificada"""
+        # Adiciona um texto flutuante na posição especificada
         self.textos_flutuantes.append({
             'texto': texto,
             'x': x,
@@ -149,7 +153,7 @@ class Game:
         })
     
     def atualizar_textos_flutuantes(self):
-        """Atualiza e remove textos flutuantes antigos"""
+        #Atualiza e remove textos flutuantes antigos
         tempo_atual = pygame.time.get_ticks()
         textos_para_remover = []
         
@@ -170,7 +174,7 @@ class Game:
             self.textos_flutuantes.remove(texto)
     
     def desenhar_textos_flutuantes(self):
-        """Desenha todos os textos flutuantes na tela"""
+        # Desenha todos os textos flutuantes na tela
         fonte = pygame.font.SysFont("Arial", 28, True)
         
         for texto in self.textos_flutuantes:
@@ -258,16 +262,37 @@ class Game:
         self.coletaveis_ativos.clear()
         self.textos_flutuantes.clear()  # Limpa textos flutuantes
         self.spawn_random_coin()
+        self.spawn_random_enemy()
         # Reposicionar o jogador
         self.player.x = self.largura // 2
         self.player.y = self.altura // 2
         self.estado = "JOGANDO"
         
     def spawn_random_coin(self):
-        classe_do_novo_item = choice(classes_coletaveis)
-        novo_item = classe_do_novo_item(0,0)
-        novo_item.reposition(self.largura, self.altura)
-        self.coletaveis_ativos.append(novo_item)
+        if len(self.coletaveis_ativos) < 10:
+            classe_do_novo_item = choice(classes_coletaveis)
+            novo_item = classe_do_novo_item(0,0)
+            novo_item.reposition(self.largura, self.altura)
+            self.coletaveis_ativos.append(novo_item)
+
+    def spawn_random_enemy(self):
+        largura_tela, altura_tela = self.largura, self.altura
+
+        if len(self.grupo_inimigos) < 5:
+            classe_do_novo_inimigo = choice(classes_inimigos)
+
+            x_inicial = largura_tela # 40 pixels fora da borda
+            y_inicial = randint(40, altura_tela + 40) # Posição Y segura
+            
+            sprite_a_passar = None
+
+            if classe_do_novo_inimigo == Bruxa:
+                sprites_a_passar = self.sprites_bruxa
+                x_inicial = largura_tela - 40
+                y_inicial = randint(0, altura_tela - 40)
+
+            novo_inimigo = classe_do_novo_inimigo(x_inicial, y_inicial)
+            self.grupo_inimigos.add(novo_inimigo)
 
     def check_collisions(self, templário, sword_rect):
         # Ação de coleta dos itens
@@ -445,9 +470,16 @@ class Game:
                     if event.type == spawn_item_event:
                         self.spawn_random_coin()
 
+                    if event.type == spawn_enemy_event:
+                        self.spawn_random_enemy()
+
                 self.player.move(self.largura, self.altura)
                 self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
                 self.rect = self.sword.draw(self.tela)
+
+                self.grupo_inimigos.update()
+                self.grupo_inimigos.draw(self.tela)
+
                 for item in self.coletaveis_ativos:
                         item.draw(self.tela)
 

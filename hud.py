@@ -32,28 +32,9 @@ class Hud():
         tela.blit(imagem_dima, (-2, 95))
         tela.blit(linha_score, (20, 125))
 
-        if vida >= 100:
-            sprite_key = "Vida10"
-        elif vida >= 90:
-            sprite_key = "Vida9"
-        elif vida >= 80:
-            sprite_key = "Vida8"
-        elif vida >= 70:
-            sprite_key = "Vida7"
-        elif vida >= 60:
-            sprite_key = "Vida6"
-        elif vida >= 50:
-            sprite_key = "Vida5"
-        elif vida >= 40:
-            sprite_key = "Vida4"
-        elif vida >= 30:
-            sprite_key = "Vida3"
-        elif vida >= 20:
-            sprite_key = "Vida2"
-        elif vida >= 10:
-            sprite_key = "Vida1"
-        else:
-            sprite_key = "Vida0"
+        nivel_vida = vida // 10 
+        nivel_vida = max(0, min(10, nivel_vida))
+        sprite_key = f"Vida{nivel_vida}"
 
         if sprite_key in hud_sprites:
             sprite_vida = hud_sprites[sprite_key]
