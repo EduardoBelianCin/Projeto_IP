@@ -111,10 +111,139 @@ class Game:
         self.frame_animacao = 0
         self.timer_animacao = 0
         
-        # Botão Jogar Novamente
-        self.botao_rect = pygame.Rect(0, 0, 300, 60)
-        self.botao_rect.center = (self.largura // 2, self.altura // 2 + 200)
+        # Botão Jogar Novamente (tela de vitória)
+        self.botao_jogar_novamente = pygame.Rect(0, 0, 300, 60)
+        self.botao_jogar_novamente.center = (self.largura // 2, self.altura // 2 + 200)
         
+        # Estados do jogo
+        self.estado = "MENU"  # MENU, JOGANDO, VITORIA
+        
+        # Botões do Menu Principal
+        largura_botao = 250
+        altura_botao = 70
+        espaco_entre_botoes = 30
+        
+        self.botao_jogar = pygame.Rect(0, 0, largura_botao, altura_botao)
+        self.botao_jogar.center = (self.largura // 2, self.altura // 2 + 50)
+        
+        self.botao_sair = pygame.Rect(0, 0, largura_botao, altura_botao)
+        self.botao_sair.center = (self.largura // 2, self.altura // 2 + 50 + altura_botao + espaco_entre_botoes)
+        
+        # Animação do personagem no menu
+        self.sprites_menu = self.sprites.get('Idle', [])
+        self.frame_menu = 0
+        self.timer_menu = 0
+        
+        # Sistema de textos flutuantes
+        self.textos_flutuantes = []
+        
+    def adicionar_texto_flutuante(self, texto, x, y, cor):
+        """Adiciona um texto flutuante na posição especificada"""
+        self.textos_flutuantes.append({
+            'texto': texto,
+            'x': x,
+            'y': y,
+            'cor': cor,
+            'tempo_criacao': pygame.time.get_ticks(),
+            'alpha': 255
+        })
+    
+    def atualizar_textos_flutuantes(self):
+        """Atualiza e remove textos flutuantes antigos"""
+        tempo_atual = pygame.time.get_ticks()
+        textos_para_remover = []
+        
+        for texto in self.textos_flutuantes:
+            tempo_vida = tempo_atual - texto['tempo_criacao']
+            
+            # Remove após 1.5 segundos
+            if tempo_vida > 1500:
+                textos_para_remover.append(texto)
+            else:
+                # Move para cima
+                texto['y'] -= 1.5
+                # Fade out gradual
+                texto['alpha'] = max(0, 255 - (tempo_vida * 0.17))
+        
+        # Remove textos antigos
+        for texto in textos_para_remover:
+            self.textos_flutuantes.remove(texto)
+    
+    def desenhar_textos_flutuantes(self):
+        """Desenha todos os textos flutuantes na tela"""
+        fonte = pygame.font.SysFont("Arial", 28, True)
+        
+        for texto in self.textos_flutuantes:
+            # Criar superfície com o texto
+            superficie_texto = fonte.render(texto['texto'], True, texto['cor'])
+            
+            # Aplicar transparência
+            superficie_texto.set_alpha(int(texto['alpha']))
+            
+            # Centralizar o texto na posição
+            rect = superficie_texto.get_rect(center=(int(texto['x']), int(texto['y'])))
+            
+            # Desenhar sombra para melhor legibilidade
+            sombra = fonte.render(texto['texto'], True, (0, 0, 0))
+            sombra.set_alpha(int(texto['alpha'] * 0.5))
+            rect_sombra = sombra.get_rect(center=(int(texto['x']) + 2, int(texto['y']) + 2))
+            self.tela.blit(sombra, rect_sombra)
+            
+            # Desenhar texto
+            self.tela.blit(superficie_texto, rect)
+    
+    def desenhar_barra_progresso(self):
+        """Desenha a barra de progresso para 1000 pontos"""
+        # Configurações da barra
+        largura_barra = 400
+        altura_barra = 35
+        x_barra = (self.largura - largura_barra) // 2
+        y_barra = 20
+        
+        # Calcular progresso (0 a 1)
+        progresso = min(self.pontos / 1000, 1.0)
+        largura_preenchida = int(largura_barra * progresso)
+        
+        # Fundo da barra (escuro)
+        fundo = pygame.Rect(x_barra, y_barra, largura_barra, altura_barra)
+        pygame.draw.rect(self.tela, (40, 40, 50), fundo, border_radius=10)
+        
+        # Barra de progresso (gradiente de cor baseado no progresso)
+        if largura_preenchida > 0:
+            # Cor muda de verde -> amarelo -> dourado conforme progresso
+            if progresso < 0.5:
+                cor_barra = (50, 200, 50)  # Verde
+            elif progresso < 0.8:
+                cor_barra = (200, 200, 50)  # Amarelo
+            else:
+                cor_barra = (255, 215, 0)  # Dourado
+            
+            preenchimento = pygame.Rect(x_barra, y_barra, largura_preenchida, altura_barra)
+            pygame.draw.rect(self.tela, cor_barra, preenchimento, border_radius=10)
+        
+        # Borda dourada
+        pygame.draw.rect(self.tela, (255, 215, 0), fundo, 3, border_radius=10)
+        
+        # Texto de progresso no centro da barra
+        fonte = pygame.font.SysFont("Arial", 20, True)
+        texto_progresso = f"{self.pontos}/1000"
+        superficie_texto = fonte.render(texto_progresso, True, (255, 255, 255))
+        
+        # Sombra do texto
+        sombra = fonte.render(texto_progresso, True, (0, 0, 0))
+        rect_sombra = sombra.get_rect(center=(self.largura // 2 + 1, y_barra + altura_barra // 2 + 1))
+        self.tela.blit(sombra, rect_sombra)
+        
+        # Texto principal
+        rect_texto = superficie_texto.get_rect(center=(self.largura // 2, y_barra + altura_barra // 2))
+        self.tela.blit(superficie_texto, rect_texto)
+        
+        # Label "OBJETIVO" acima da barra
+        fonte_label = pygame.font.SysFont("Arial", 16, True)
+        label = fonte_label.render("OBJETIVO", True, (200, 200, 200))
+        rect_label = label.get_rect(center=(self.largura // 2, y_barra - 15))
+        self.tela.blit(label, rect_label)
+    
     def reiniciar_jogo(self):
         """Reinicia o jogo resetando todas as variáveis"""
         self.pontos = 0
@@ -127,10 +256,12 @@ class Game:
         self.frame_animacao = 0
         self.timer_animacao = 0
         self.coletaveis_ativos.clear()
+        self.textos_flutuantes.clear()  # Limpa textos flutuantes
         self.spawn_random_coin()
         # Reposicionar o jogador
         self.player.x = self.largura // 2
         self.player.y = self.altura // 2
+        self.estado = "JOGANDO"
         
     def spawn_random_coin(self):
         classe_do_novo_item = choice(classes_coletaveis)
@@ -151,18 +282,28 @@ class Game:
                     self.diamantes += 1
                     self.pontos += item.value
                     som_dima.play()
+                    # Texto flutuante para diamante
+                    self.adicionar_texto_flutuante(f"+{item.value} pts", item.x, item.y, (0, 255, 255))
                 elif isinstance(item, Moeda):
                     self.moedas += 1
                     self.pontos += item.value
                     som_moeda.play()
+                    # Texto flutuante para moeda
+                    self.adicionar_texto_flutuante(f"+{item.value} pts", item.x, item.y, (255, 215, 0))
                 elif isinstance(item, Maça):
                     self.maçãs += 1
-                    self.vida = min(100, self.vida + item.value) 
+                    vida_antes = self.vida
+                    self.vida = min(100, self.vida + item.value)
+                    vida_recuperada = self.vida - vida_antes
                     som_maca.play()
+                    # Texto flutuante para maçã
+                    self.adicionar_texto_flutuante(f"+{vida_recuperada} VIDA", item.x, item.y, (255, 100, 100))
                 coletados.append(item) # Marca para remoção
 
             # Ação de destruir (Colisão entre Espada e Item)
             if sword_rect.colliderect(hitbox_item):
+                # Texto flutuante ao destruir com espada
+                self.adicionar_texto_flutuante("DESTRUIDO!", item.x, item.y, (255, 50, 50))
                 coletados.append(item) # Marca para remoção
         
         # Remove os itens coletados ou destruídos da lista de ativos
@@ -170,7 +311,58 @@ class Game:
             if item in self.coletaveis_ativos:
                 self.coletaveis_ativos.remove(item)
 
-    #  Função da Tela de Vitória 
+    def exibir_menu(self, mouse_pos):
+        """Desenha o menu principal"""
+        # Fundo do menu (mesmo do jogo mas mais escuro)
+        self.tela.blit(self.BACKEST, (0, 0))
+        overlay = pygame.Surface((self.largura, self.altura))
+        overlay.set_alpha(150)
+        overlay.fill((0, 0, 0))
+        self.tela.blit(overlay, (0, 0))
+        
+        # Animação do personagem no centro-superior
+        agora = pygame.time.get_ticks()
+        if agora - self.timer_menu > 150:
+            self.frame_menu = (self.frame_menu + 1) % len(self.sprites_menu)
+            self.timer_menu = agora
+        
+        sprite = self.sprites_menu[self.frame_menu]
+        sprite_grande = pygame.transform.scale_by(sprite, 3)
+        rect_sprite = sprite_grande.get_rect(center=(self.largura // 2, self.altura // 2 - 150))
+        self.tela.blit(sprite_grande, rect_sprite)
+        
+        # Título do jogo
+        fonte_titulo = pygame.font.SysFont("Arial", 80, True)
+        fonte_subtitulo = pygame.font.SysFont("Arial", 35, True)
+        
+        txt_titulo = fonte_titulo.render("A LENDA DA CRUZADA", True, (255, 215, 0))
+        txt_sub = fonte_subtitulo.render("Colete 1000 pontos para vencer!", True, (200, 200, 200))
+        
+        self.tela.blit(txt_titulo, txt_titulo.get_rect(center=(self.largura/2, 100)))
+        self.tela.blit(txt_sub, txt_sub.get_rect(center=(self.largura/2, 180)))
+        
+        # Botão JOGAR
+        cor_jogar = (50, 150, 50) if self.botao_jogar.collidepoint(mouse_pos) else (30, 100, 30)
+        pygame.draw.rect(self.tela, cor_jogar, self.botao_jogar, border_radius=15)
+        pygame.draw.rect(self.tela, (255, 215, 0), self.botao_jogar, 4, border_radius=15)
+        
+        fonte_botao = pygame.font.SysFont("Arial", 40, True)
+        txt_jogar = fonte_botao.render("JOGAR", True, (255, 255, 255))
+        self.tela.blit(txt_jogar, txt_jogar.get_rect(center=self.botao_jogar.center))
+        
+        # Botão SAIR
+        cor_sair = (150, 50, 50) if self.botao_sair.collidepoint(mouse_pos) else (100, 30, 30)
+        pygame.draw.rect(self.tela, cor_sair, self.botao_sair, border_radius=15)
+        pygame.draw.rect(self.tela, (255, 215, 0), self.botao_sair, 4, border_radius=15)
+        
+        txt_sair = fonte_botao.render("SAIR", True, (255, 255, 255))
+        self.tela.blit(txt_sair, txt_sair.get_rect(center=self.botao_sair.center))
+        
+        # Créditos no rodapé
+        fonte_creditos = pygame.font.SysFont("Arial", 20, False)
+        txt_creditos = fonte_creditos.render("Desenvolvido com Pygame", True, (150, 150, 150))
+        self.tela.blit(txt_creditos, txt_creditos.get_rect(center=(self.largura/2, self.altura - 30)))
+
     def exibir_vitoria(self, mouse_pos):
         self.tela.fill((20, 20, 40))
         agora = pygame.time.get_ticks()
@@ -190,14 +382,14 @@ class Game:
         self.tela.blit(txt2, txt2.get_rect(center=(self.largura/2, self.altura/2 - 70)))
         
         # Desenhar botão "Jogar Novamente"
-        cor_botao = (50, 150, 50) if self.botao_rect.collidepoint(mouse_pos) else (30, 100, 30)
+        cor_botao = (50, 150, 50) if self.botao_jogar_novamente.collidepoint(mouse_pos) else (30, 100, 30)
         
-        pygame.draw.rect(self.tela, cor_botao, self.botao_rect, border_radius=10)
-        pygame.draw.rect(self.tela, (255, 215, 0), self.botao_rect, 3, border_radius=10)
+        pygame.draw.rect(self.tela, cor_botao, self.botao_jogar_novamente, border_radius=10)
+        pygame.draw.rect(self.tela, (255, 215, 0), self.botao_jogar_novamente, 3, border_radius=10)
         
         fonte_botao = pygame.font.SysFont("Arial", 35, True)
         txt_botao = fonte_botao.render("Jogar Novamente", True, (255, 255, 255))
-        txt_rect = txt_botao.get_rect(center=self.botao_rect.center)
+        txt_rect = txt_botao.get_rect(center=self.botao_jogar_novamente.center)
         self.tela.blit(txt_botao, txt_rect)
     
     def run(self):
@@ -206,32 +398,37 @@ class Game:
             mouse_x, mouse_y = mouse_pos
 
             self.relogio.tick(30)
-            tempo_atual = pygame.time.get_ticks() # Precisa disso para o timer
+            tempo_atual = pygame.time.get_ticks()
 
-            # adicionei o cheque de vitoria 
-            if self.pontos >= 100 and not self.fim_de_jogo:
-                self.fim_de_jogo = True
-                self.inicio_vitoria_tempo = tempo_atual
-                som_vitoria.play()
-            
-            if self.fim_de_jogo:
+            #  MENU PRINCIPAL 
+            if self.estado == "MENU":
                 for event in pygame.event.get():
                     if event.type == QUIT:
                         pygame.quit()
                         exit()
                     
-                    # Detectar clique no botão (apenas com botão esquerdo do mouse)
                     if event.type == MOUSEBUTTONDOWN and event.button == 1:
-                        if self.botao_rect.collidepoint(event.pos):
+                        # Clicou no botão JOGAR
+                        if self.botao_jogar.collidepoint(event.pos):
                             self.reiniciar_jogo()
+                        
+                        # Clicou no botão SAIR
+                        if self.botao_sair.collidepoint(event.pos):
+                            pygame.quit()
+                            exit()
                 
-                self.exibir_vitoria(mouse_pos)
-                
-                # Desenhar cursor customizado na tela de vitória
+                self.exibir_menu(mouse_pos)
                 self.tela.blit(Hud().cursor_customizado(), mouse_pos)
-            else:
-            # (DAQUI PARA BAIXO É O CÓDIGO ORIGINAL, SÓ INDENTADO)
-
+            
+            #  JOGANDO 
+            elif self.estado == "JOGANDO":
+                # Checar vitória
+                if self.pontos >= 1000 and not self.fim_de_jogo:
+                    self.fim_de_jogo = True
+                    self.inicio_vitoria_tempo = tempo_atual
+                    self.estado = "VITORIA"
+                    som_vitoria.play()
+                
                 self.tela.fill((0, 0, 0))
                 self.tela.blit(self.BACKEST, (0, 0))
 
@@ -239,6 +436,11 @@ class Game:
                     if event.type == QUIT:
                         pygame.quit()
                         exit()
+                    
+                    # Tecla ESC volta ao menu
+                    if event.type == KEYDOWN:
+                        if event.key == K_ESCAPE:
+                            self.estado = "MENU"
 
                     if event.type == spawn_item_event:
                         self.spawn_random_coin()
@@ -249,20 +451,18 @@ class Game:
                 for item in self.coletaveis_ativos:
                         item.draw(self.tela)
 
-                # Ordem de desenho (profundidade)
+                # Ordem de desenho 
                 if self.sword.behind_player:
                     templário = self.player.draw(self.tela)
                     self.sword.draw(self.tela)
                 else:
                     self.sword.draw(self.tela)
                     templário = self.player.draw(self.tela)
-                #EXIBIÇÃO APENAS PARA VISUALIZAR-----------------------------------------------------
-                # pygame.draw.rect(self.tela, (255, 0, 0), self.sword.draw(self.tela), 2)
-                # pygame.draw.rect(self.tela, (255, 0, 0), templário, 2)
-                # for item in self.coletaveis_ativos:
-                #     pygame.draw.rect(self.tela, (255,0,0), item.get_hitbox(), 2)
 
                 self.check_collisions(templário, self.rect)
+                
+                # Atualizar e desenhar textos flutuantes
+                self.atualizar_textos_flutuantes()
                 
                 self.tela.blit(self.BOTTOMEST, (0, self.altura-60))
                 self.tela.blit(self.LATTEST, (0, 0))
@@ -277,8 +477,25 @@ class Game:
                     self.vida,
                     self.hud_sprites
                 )
+                
+                # Desenhar textos flutuantes por cima de tudo
+                self.desenhar_textos_flutuantes()
 
-                mouse_pos = pygame.mouse.get_pos()
+                self.tela.blit(Hud().cursor_customizado(), mouse_pos)
+            
+            #  TELA DE VITÓRIA 
+            elif self.estado == "VITORIA":
+                for event in pygame.event.get():
+                    if event.type == QUIT:
+                        pygame.quit()
+                        exit()
+                    
+                    # Detectar clique no botão (apenas com botão esquerdo do mouse)
+                    if event.type == MOUSEBUTTONDOWN and event.button == 1:
+                        if self.botao_jogar_novamente.collidepoint(event.pos):
+                            self.reiniciar_jogo()
+                
+                self.exibir_vitoria(mouse_pos)
                 self.tela.blit(Hud().cursor_customizado(), mouse_pos)
 
             pygame.display.update()
