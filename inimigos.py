@@ -1,143 +1,295 @@
 import pygame
-from random import randint
+import os
+from random import choice, randint
 
-class Inimigo(pygame.sprite.Sprite):
-    def __init__(self, x, y, vida, velocidade, sprites):
-        super().__init__()
-
-        self.image = pygame.Surface((40, 40))
-        self.rect = self.image.get_rect(topleft=(x, y))
-
-        info = pygame.display.Info()
-        self.largura_desktop = info.current_w
-        self.altura_desktop = info.current_h
-
-        if sprites:
-            self.sprites = sprites
-            self.image = self.sprites.get[0]
-        else:
-            self.image = pygame.Surface((40, 40))
-        self.rect = self.image.get_rect(topleft=(x, y))
-        self.vida = vida
-        self.velocidade = velocidade
-        self.vivo = True
-        self.sprites = sprites
+def carregar_sprites_animacao(caminho, num_frames):
+    """Carrega sprites de animação de uma pasta"""
+    sprites = []
+    nome_pasta = caminho.split('/')[-1]  # Pega o último nome (Fly, Attack, morcego)
     
-    def receber_dano(self, dano):
-        self.vida -= dano
+    for i in range(num_frames):
+        # Para a bruxa (pasta Fly)
+        if nome_pasta == "Fly":
+            img_path = f"{caminho}/Bruxa{i}.png"
+        # Para projétil (pasta Attack)
+        elif nome_pasta == "Attack":
+            img_path = f"{caminho}/fogo{i}.png"
+        # Para morcego
+        else:
+            img_path = f"{caminho}/morcego{i}.png"
+        
+        img = pygame.image.load(img_path).convert_alpha()
+        img = pygame.transform.scale_by(img, 2)
+        sprites.append(img)
+    
+    return sprites
 
-        if self.vida <= 0:
-            self.morrer()
 
-    def morrer(self):
-        self.vivo = False
-        self.kill()
-
-    def update(self):
-        if not self.vivo:
-            return
-        self.rect.y -= self.velocidade//2
-        self.rect.x -= self.velocidade
-
-class Morcego(Inimigo):
-    def __init__(self, x, y):
-        super().__init__(x, y, vida=1, velocidade=3, sprites=None)
-        self.image.fill((0, 200, 0))
-
-class Bruxa(Inimigo):
+class Bruxa:
+    """Bruxa que se move horizontalmente e atira projéteis de fogo"""
+    
     def __init__(self, x, y, sprites):
-        super().__init__(x, y, vida=1, velocidade=0, sprites=sprites) 
-        self.image.fill((200, 0, 0))
-        self.estado_movimento = 1  
-        self.tempo_inicio_estado = pygame.time.get_ticks() 
-        
-        # Duração de cada estado em MILISSEGUNDOS
-        self.tempo_duracao = {1: 3000, 2: 1000, 3: 3000, 4: 1000}
-        
-        altura_segura = self.altura_desktop - self.rect.height
-        largura_segura = self.largura_desktop - self.rect.width
-        
-        self.frame_atual = 0
-        self.timer_animacao = pygame.time.get_ticks()
-        self.velocidade_animacao = 150
-        self.sprites_fly = self.sprites.get('fly', [])
-
-        self.pos_destino_esq = (0, randint(0, altura_segura))
-        self.pos_destino_dir = (largura_segura, randint(0, altura_segura))
-        
-        # Começa na direita para iniciar o ciclo
-        self.rect.topleft = self.pos_destino_dir 
-
-        self.estado_movimento = 4
-        self.tempo_duracao[4] = 1
-        self.tempo_inicio_estado = pygame.time.get_ticks()
-
-    def animar(self):
+        self.x = x
+        self.y = y
+        self.vida = 3
+        self.velocidade = 2
+        self.direcao = 1 if x < 400 else -1
+        self.ultimo_tiro = pygame.time.get_ticks()
+        self.intervalo_tiro = 3000  # 3 segundos
+        self.frame = 0
+        self.timer_animacao = 0
+        self.sprites = sprites
+        self.largura = 40
+        self.altura = 40
+    
+    def atualizar(self, largura_tela):
+        """Atualiza movimento e animação"""
         tempo_atual = pygame.time.get_ticks()
-
-        if tempo_atual - self.timer_animacao:
-            self.frame_atual = (self.frame_atual + 1) % len(self.sprites_fly)
-            self.image = self.sprites_fly[self.frame_atual]
+        
+        # Movimento horizontal
+        self.x += self.velocidade * self.direcao
+        
+        # Inverte direção nas bordas
+        if self.x <= 50 or self.x >= largura_tela - 50:
+            self.direcao *= -1
+        
+        # Atualizar animação
+        if tempo_atual - self.timer_animacao > 150:
+            self.frame = (self.frame + 1) % len(self.sprites)
             self.timer_animacao = tempo_atual
-
-    def update(self):
-        if not self.vivo:
-            return
-        self.animar()
-        
+    
+    def pode_atirar(self):
+        """Verifica se pode atirar"""
         tempo_atual = pygame.time.get_ticks()
-        tempo_passado = tempo_atual - self.tempo_inicio_estado
+        if tempo_atual - self.ultimo_tiro > self.intervalo_tiro:
+            self.ultimo_tiro = tempo_atual
+            return True
+        return False
+    
+    def desenhar(self, tela):
+        """Desenha a bruxa na tela"""
+        sprite = self.sprites[self.frame]
+        rect = sprite.get_rect(center=(int(self.x), int(self.y)))
+        tela.blit(sprite, rect)
+    
+    def get_rect(self):
+        """Retorna o retângulo de colisão"""
+        return pygame.Rect(self.x - self.largura//2, self.y - self.altura//2, 
+                          self.largura, self.altura)
+
+
+class Morcego:
+    """Morcego que persegue o jogador"""
+    
+    def __init__(self, x, y, sprites):
+        self.x = x
+        self.y = y
+        self.vida = 1
+        self.velocidade = 3.5
+        self.frame = 0
+        self.timer_animacao = 0
+        self.sprites = sprites
+        self.largura = 30
+        self.altura = 30
+    
+    def atualizar(self, jogador_x, jogador_y):
+        """Atualiza movimento em direção ao jogador"""
+        tempo_atual = pygame.time.get_ticks()
         
-        # --- Transição de Estado ---
-        if tempo_passado >= self.tempo_duracao[self.estado_movimento]:
-            
-            self.estado_movimento = (self.estado_movimento % 4) + 1
-            self.tempo_inicio_estado = tempo_atual # Reinicia o timer
-            
-            if self.estado_movimento == 1: # Indo p/ Esq (próxima posição Y aleatória)
-                altura_segura = self.altura_desktop - self.rect.height
-                self.pos_destino_esq = (0, randint(0, altura_segura))
+        # Calcular direção para o jogador
+        dx = jogador_x - self.x
+        dy = jogador_y - self.y
+        distancia = (dx**2 + dy**2)**0.5
+        
+        if distancia > 0:
+            # Normalizar e aplicar velocidade
+            self.x += (dx / distancia) * self.velocidade
+            self.y += (dy / distancia) * self.velocidade
+        
+        # Atualizar animação
+        if tempo_atual - self.timer_animacao > 100:
+            self.frame = (self.frame + 1) % len(self.sprites)
+            self.timer_animacao = tempo_atual
+    
+    def desenhar(self, tela):
+        """Desenha o morcego na tela"""
+        sprite = self.sprites[self.frame]
+        rect = sprite.get_rect(center=(int(self.x), int(self.y)))
+        tela.blit(sprite, rect)
+    
+    def get_rect(self):
+        """Retorna o retângulo de colisão"""
+        return pygame.Rect(self.x - self.largura//2, self.y - self.altura//2, 
+                          self.largura, self.altura)
 
-            elif self.estado_movimento == 3: # Indo p/ Dir (próxima posição Y aleatória)
-                largura_segura = self.largura_desktop - self.rect.width
-                altura_segura = self.altura_desktop - self.rect.height
-                self.pos_destino_dir = (largura_segura, randint(0, altura_segura))
 
-        # --- Execução do Movimento ---
-        if self.estado_movimento == 1: # Indo para a Esquerda
-            percentual = min(1.0, tempo_passado / self.tempo_duracao[1]) # Evita percentual > 1
-            
-            start_pos = self.pos_destino_dir
-            end_pos = self.pos_destino_esq
-            
-            novo_x = start_pos[0] + (end_pos[0] - start_pos[0]) * percentual
-            novo_y = start_pos[1] + (end_pos[1] - start_pos[1]) * percentual
-            
-            self.rect.topleft = (novo_x, novo_y)
-            
-        elif self.estado_movimento == 2: # Esperando na Esquerda
-            self.rect.topleft = self.pos_destino_esq 
-            
-        elif self.estado_movimento == 3: # Indo para a Direita
-            percentual = min(1.0, tempo_passado / self.tempo_duracao[3])
-            
-            start_pos = self.pos_destino_esq
-            end_pos = self.pos_destino_dir
-            
-            novo_x = start_pos[0] + (end_pos[0] - start_pos[0]) * percentual
-            novo_y = start_pos[1] + (end_pos[1] - start_pos[1]) * percentual
-            
-            self.rect.topleft = (novo_x, novo_y)
+class Projetil:
+    """Projétil de fogo disparado pela bruxa"""
+    
+    def __init__(self, x, y, vel_x, vel_y, sprites):
+        self.x = x
+        self.y = y
+        self.vel_x = vel_x
+        self.vel_y = vel_y
+        self.frame = 0
+        self.timer_animacao = 0
+        self.sprites = sprites
+        self.largura = 20
+        self.altura = 20
+    
+    def atualizar(self):
+        """Atualiza movimento e animação"""
+        tempo_atual = pygame.time.get_ticks()
+        
+        # Movimento
+        self.x += self.vel_x
+        self.y += self.vel_y
+        
+        # Atualizar animação
+        if tempo_atual - self.timer_animacao > 80:
+            self.frame = (self.frame + 1) % len(self.sprites)
+            self.timer_animacao = tempo_atual
+    
+    def desenhar(self, tela):
+        """Desenha o projétil na tela"""
+        sprite = self.sprites[self.frame]
+        rect = sprite.get_rect(center=(int(self.x), int(self.y)))
+        tela.blit(sprite, rect)
+    
+    def get_rect(self):
+        """Retorna o retângulo de colisão"""
+        return pygame.Rect(self.x - self.largura//2, self.y - self.altura//2, 
+                          self.largura, self.altura)
+    
+    def fora_da_tela(self, largura_tela, altura_tela):
+        """Verifica se saiu da tela"""
+        return (self.x < -50 or self.x > largura_tela + 50 or 
+                self.y < -50 or self.y > altura_tela + 50)
 
-        elif self.estado_movimento == 4: # Esperando na Direita
-            self.rect.topleft = self.pos_destino_dir
 
-class Diabrete(Inimigo):
-    def __init__(self, x, y, velocidade=3, sprites=None):
-        super().__init__(x, y, vida=1, velocidade=15)
-        self.image.fill((200, 0, 0))
-
-class Touro(Inimigo):
-    def __init__(self, x, y, velocidade=3, sprites=None):
-        super().__init__(x, y, vida=5, velocidade=3)
-        self.image.fill((200, 0, 0))
+class GerenciadorInimigos:
+    """Gerencia spawn e atualização de todos os inimigos"""
+    
+    def __init__(self, largura_tela, altura_tela):
+        self.largura = largura_tela
+        self.altura = altura_tela
+        
+        # Listas de inimigos
+        self.bruxas = []
+        self.morcegos = []
+        self.projeteis = []
+        
+        # Controle de spawn
+        self.ultimo_spawn_bruxa = 0
+        self.ultimo_spawn_morcego = 0
+        self.intervalo_spawn_bruxa = 15000  # 15 segundos
+        self.intervalo_spawn_morcego = 8000  # 8 segundos
+        self.max_bruxas = 2
+        self.max_morcegos = 5
+        
+        # Carregar sprites
+        self.sprites_bruxa = carregar_sprites_animacao("sprites/inimigos/Bruxa/Fly", 4)
+        self.sprites_morcego = carregar_sprites_animacao("sprites/inimigos/morcego", 4)
+        self.sprites_projetil = carregar_sprites_animacao("sprites/inimigos/Bruxa/Attack", 5)
+    
+    def spawn_bruxa(self):
+        """Cria uma nova bruxa"""
+        if len(self.bruxas) < self.max_bruxas:
+            # Spawn nas bordas (esquerda ou direita)
+            lado = choice(['esquerda', 'direita'])
+            if lado == 'esquerda':
+                x = 50
+            else:
+                x = self.largura - 50
+            
+            y = randint(100, self.altura - 150)
+            
+            bruxa = Bruxa(x, y, self.sprites_bruxa)
+            self.bruxas.append(bruxa)
+    
+    def spawn_morcego(self):
+        """Cria um novo morcego"""
+        if len(self.morcegos) < self.max_morcegos:
+            # Spawn nas bordas da tela
+            lado = choice(['cima', 'baixo', 'esquerda', 'direita'])
+            
+            if lado == 'cima':
+                x = randint(50, self.largura - 50)
+                y = 50
+            elif lado == 'baixo':
+                x = randint(50, self.largura - 50)
+                y = self.altura - 100
+            elif lado == 'esquerda':
+                x = 50
+                y = randint(50, self.altura - 100)
+            else:
+                x = self.largura - 50
+                y = randint(50, self.altura - 100)
+            
+            morcego = Morcego(x, y, self.sprites_morcego)
+            self.morcegos.append(morcego)
+    
+    def criar_projetil(self, x, y, jogador_x, jogador_y):
+        """Cria um projétil de fogo"""
+        # Calcular direção para o jogador
+        dx = jogador_x - x
+        dy = jogador_y - y
+        distancia = (dx**2 + dy**2)**0.5
+        
+        if distancia > 0:
+            velocidade_proj = 5
+            vel_x = (dx / distancia) * velocidade_proj
+            vel_y = (dy / distancia) * velocidade_proj
+            
+            projetil = Projetil(x, y, vel_x, vel_y, self.sprites_projetil)
+            self.projeteis.append(projetil)
+    
+    def atualizar(self, jogador_x, jogador_y):
+        """Atualiza todos os inimigos"""
+        tempo_atual = pygame.time.get_ticks()
+        
+        # Spawn de inimigos
+        if tempo_atual - self.ultimo_spawn_bruxa > self.intervalo_spawn_bruxa:
+            self.spawn_bruxa()
+            self.ultimo_spawn_bruxa = tempo_atual
+        
+        if tempo_atual - self.ultimo_spawn_morcego > self.intervalo_spawn_morcego:
+            self.spawn_morcego()
+            self.ultimo_spawn_morcego = tempo_atual
+        
+        # Atualizar bruxas
+        for bruxa in self.bruxas:
+            bruxa.atualizar(self.largura)
+            # Verifica se pode atirar
+            if bruxa.pode_atirar():
+                self.criar_projetil(bruxa.x, bruxa.y, jogador_x, jogador_y)
+        
+        # Atualizar morcegos
+        for morcego in self.morcegos:
+            morcego.atualizar(jogador_x, jogador_y)
+        
+        # Atualizar projéteis
+        for proj in self.projeteis[:]:
+            proj.atualizar()
+            # Remover se sair da tela
+            if proj.fora_da_tela(self.largura, self.altura):
+                self.projeteis.remove(proj)
+    
+    def desenhar(self, tela):
+        """Desenha todos os inimigos"""
+        for bruxa in self.bruxas:
+            bruxa.desenhar(tela)
+        
+        for morcego in self.morcegos:
+            morcego.desenhar(tela)
+        
+        for proj in self.projeteis:
+            proj.desenhar(tela)
+    
+    def limpar(self):
+        """Limpa todos os inimigos"""
+        self.bruxas.clear()
+        self.morcegos.clear()
+        self.projeteis.clear()
+        self.ultimo_spawn_bruxa = pygame.time.get_ticks()
+        self.ultimo_spawn_morcego = pygame.time.get_ticks()

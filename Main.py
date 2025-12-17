@@ -8,6 +8,8 @@ from coletaveis import *
 from hud import Hud
 from inimigos import *
 
+from inimigos import GerenciadorInimigos
+
 pygame.init()
 pygame.mixer.init()
 
@@ -20,12 +22,9 @@ som_vitoria = pygame.mixer.Sound("Audios/victory.mp3")
 som_vitoria.set_volume(0.5)
 
 # Música de fundo do menu
-try:
-    pygame.mixer.music.load("Audios/menu_music.mp3")
-    pygame.mixer.music.set_volume(0.3)
-    musica_menu_disponivel = True
-except:
-    musica_menu_disponivel = False
+pygame.mixer.music.load("Audios/menu_music.mp3")
+pygame.mixer.music.set_volume(0.3)
+musica_menu_disponivel = True
 
 som_maca.set_volume(0.2)
 som_moeda.set_volume(0.2)
@@ -150,21 +149,8 @@ class Game:
         # Sistema de textos flutuantes
         self.textos_flutuantes = []
         
-        # Inimigos
-        self.bruxas = []
-        self.morcegos = []
-        self.projeteis = []
-        self.ultimo_spawn_bruxa = 0
-        self.ultimo_spawn_morcego = 0
-        self.intervalo_spawn_bruxa = 15000  # 15 segundos
-        self.intervalo_spawn_morcego = 8000  # 8 segundos
-        self.max_bruxas = 2
-        self.max_morcegos = 5
-        
-        # Carregar sprites dos inimigos
-        self.sprites_bruxa = self.carregar_sprites_animacao("sprites/inimigos/Bruxa/Fly", 4)
-        self.sprites_morcego = self.carregar_sprites_animacao("sprites/inimigos/morcego", 4)
-        self.sprites_projetil = self.carregar_sprites_animacao("sprites/inimigos/Bruxa/Attack", 5)
+        # Gerenciador de inimigos
+        self.gerenciador_inimigos = GerenciadorInimigos(self.largura, self.altura)
         
     def adicionar_texto_flutuante(self, texto, x, y, cor):
         """Adiciona um texto flutuante na posição especificada"""
@@ -176,35 +162,6 @@ class Game:
             'tempo_criacao': pygame.time.get_ticks(),
             'alpha': 255
         })
-    
-    def carregar_sprites_animacao(self, caminho, num_frames):
-        """Carrega sprites de animação de uma pasta"""
-        sprites = []
-        nome_pasta = caminho.split('/')[-1]  # Pega o último nome (Fly, Attack, morcego)
-        
-        for i in range(num_frames):
-            try:
-                # Para a bruxa (pasta Fly)
-                if nome_pasta == "Fly":
-                    img_path = f"{caminho}/Bruxa{i}.png"
-                # Para projétil (pasta Attack)
-                elif nome_pasta == "Attack":
-                    img_path = f"{caminho}/fogo{i}.png"
-                # Para morcego
-                else:
-                    img_path = f"{caminho}/morcego{i}.png"
-                
-                img = pygame.image.load(img_path).convert_alpha()
-                img = pygame.transform.scale_by(img, 2)
-                sprites.append(img)
-            except Exception as e:
-                print(f"Erro ao carregar {img_path}: {e}")
-                # Cria um quadrado vermelho como fallback
-                surf = pygame.Surface((32, 32))
-                surf.fill((255, 0, 0))
-                sprites.append(surf)
-        
-        return sprites if sprites else [pygame.Surface((32, 32))]
     
     def atualizar_textos_flutuantes(self):
         """Atualiza e remove textos flutuantes antigos"""
@@ -302,203 +259,52 @@ class Game:
         rect_label = label.get_rect(center=(self.largura // 2, y_barra - 15))
         self.tela.blit(label, rect_label)
     
-    def spawn_bruxa(self):
-        """Cria uma nova bruxa"""
-        if len(self.bruxas) < self.max_bruxas:
-            # Spawn nas bordas (esquerda ou direita)
-            lado = choice(['esquerda', 'direita'])
-            if lado == 'esquerda':
-                x = 50
-            else:
-                x = self.largura - 50
-            
-            y = randint(100, self.altura - 150)
-            
-            bruxa = {
-                'x': x,
-                'y': y,
-                'vida': 3,
-                'velocidade': 2,
-                'direcao': 1 if lado == 'esquerda' else -1,
-                'ultimo_tiro': pygame.time.get_ticks(),
-                'intervalo_tiro': 3000,
-                'frame': 0,
-                'timer_animacao': 0
-            }
-            self.bruxas.append(bruxa)
-    
-    def spawn_morcego(self):
-        """Cria um novo morcego"""
-        if len(self.morcegos) < self.max_morcegos:
-            # Spawn nas bordas da tela
-            lado = choice(['cima', 'baixo', 'esquerda', 'direita'])
-            
-            if lado == 'cima':
-                x = randint(50, self.largura - 50)
-                y = 50
-            elif lado == 'baixo':
-                x = randint(50, self.largura - 50)
-                y = self.altura - 100
-            elif lado == 'esquerda':
-                x = 50
-                y = randint(50, self.altura - 100)
-            else:
-                x = self.largura - 50
-                y = randint(50, self.altura - 100)
-            
-            morcego = {
-                'x': x,
-                'y': y,
-                'vida': 1,
-                'velocidade': 3.5,
-                'frame': 0,
-                'timer_animacao': 0
-            }
-            self.morcegos.append(morcego)
-    
-    def atualizar_bruxas(self):
-        """Atualiza movimento e comportamento das bruxas"""
-        tempo_atual = pygame.time.get_ticks()
-        
-        for bruxa in self.bruxas[:]:
-            # Movimento horizontal
-            bruxa['x'] += bruxa['velocidade'] * bruxa['direcao']
-            
-            # Inverte direção nas bordas
-            if bruxa['x'] <= 50 or bruxa['x'] >= self.largura - 50:
-                bruxa['direcao'] *= -1
-            
-            # Atualizar animação
-            if tempo_atual - bruxa['timer_animacao'] > 150:
-                bruxa['frame'] = (bruxa['frame'] + 1) % len(self.sprites_bruxa)
-                bruxa['timer_animacao'] = tempo_atual
-            
-            # Atirar projétil
-            if tempo_atual - bruxa['ultimo_tiro'] > bruxa['intervalo_tiro']:
-                self.criar_projetil(bruxa['x'], bruxa['y'])
-                bruxa['ultimo_tiro'] = tempo_atual
-    
-    def atualizar_morcegos(self):
-        """Atualiza movimento dos morcegos (seguem o jogador)"""
-        tempo_atual = pygame.time.get_ticks()
-        
-        for morcego in self.morcegos[:]:
-            # Calcular direção para o jogador
-            dx = self.player.x - morcego['x']
-            dy = self.player.y - morcego['y']
-            distancia = (dx**2 + dy**2)**0.5
-            
-            if distancia > 0:
-                # Normalizar e aplicar velocidade
-                morcego['x'] += (dx / distancia) * morcego['velocidade']
-                morcego['y'] += (dy / distancia) * morcego['velocidade']
-            
-            # Atualizar animação
-            if tempo_atual - morcego['timer_animacao'] > 100:
-                morcego['frame'] = (morcego['frame'] + 1) % len(self.sprites_morcego)
-                morcego['timer_animacao'] = tempo_atual
-    
-    def criar_projetil(self, x, y):
-        """Cria um projétil de fogo da bruxa"""
-        # Calcular direção para o jogador
-        dx = self.player.x - x
-        dy = self.player.y - y
-        distancia = (dx**2 + dy**2)**0.5
-        
-        if distancia > 0:
-            velocidade_proj = 5
-            projetil = {
-                'x': x,
-                'y': y,
-                'vel_x': (dx / distancia) * velocidade_proj,
-                'vel_y': (dy / distancia) * velocidade_proj,
-                'frame': 0,
-                'timer_animacao': 0
-            }
-            self.projeteis.append(projetil)
-    
-    def atualizar_projeteis(self):
-        """Atualiza movimento dos projéteis"""
-        tempo_atual = pygame.time.get_ticks()
-        
-        for proj in self.projeteis[:]:
-            proj['x'] += proj['vel_x']
-            proj['y'] += proj['vel_y']
-            
-            # Atualizar animação
-            if tempo_atual - proj['timer_animacao'] > 80:
-                proj['frame'] = (proj['frame'] + 1) % len(self.sprites_projetil)
-                proj['timer_animacao'] = tempo_atual
-            
-            # Remover se sair da tela
-            if (proj['x'] < 0 or proj['x'] > self.largura or 
-                proj['y'] < 0 or proj['y'] > self.altura):
-                self.projeteis.remove(proj)
-    
-    def desenhar_inimigos(self):
-        """Desenha todos os inimigos na tela"""
-        # Desenhar bruxas
-        for bruxa in self.bruxas:
-            sprite = self.sprites_bruxa[bruxa['frame']]
-            rect = sprite.get_rect(center=(int(bruxa['x']), int(bruxa['y'])))
-            self.tela.blit(sprite, rect)
-        
-        # Desenhar morcegos
-        for morcego in self.morcegos:
-            sprite = self.sprites_morcego[morcego['frame']]
-            rect = sprite.get_rect(center=(int(morcego['x']), int(morcego['y'])))
-            self.tela.blit(sprite, rect)
-        
-        # Desenhar projéteis
-        for proj in self.projeteis:
-            sprite = self.sprites_projetil[proj['frame']]
-            rect = sprite.get_rect(center=(int(proj['x']), int(proj['y'])))
-            self.tela.blit(sprite, rect)
-    
     def check_colisoes_inimigos(self, player_rect, sword_rect):
         """Verifica colisões entre jogador/espada e inimigos"""
+        gerenc = self.gerenciador_inimigos
+        
         # Colisão jogador com bruxas
-        for bruxa in self.bruxas[:]:
-            bruxa_rect = pygame.Rect(bruxa['x'] - 20, bruxa['y'] - 20, 40, 40)
+        for bruxa in gerenc.bruxas[:]:
+            bruxa_rect = bruxa.get_rect()
             
             if player_rect.colliderect(bruxa_rect):
                 self.vida -= 20
                 self.adicionar_texto_flutuante("-20 VIDA", self.player.x, self.player.y - 30, (255, 50, 50))
-                self.bruxas.remove(bruxa)
+                gerenc.bruxas.remove(bruxa)
             
             # Colisão espada com bruxa
             if sword_rect.colliderect(bruxa_rect):
-                bruxa['vida'] -= 1
-                if bruxa['vida'] <= 0:
+                bruxa.vida -= 1
+                if bruxa.vida <= 0:
                     self.pontos += 30
-                    self.adicionar_texto_flutuante("+30 pts", bruxa['x'], bruxa['y'], (255, 215, 0))
-                    self.bruxas.remove(bruxa)
+                    self.adicionar_texto_flutuante("+30 pts", bruxa.x, bruxa.y, (255, 215, 0))
+                    gerenc.bruxas.remove(bruxa)
                 else:
-                    self.adicionar_texto_flutuante("HIT!", bruxa['x'], bruxa['y'], (255, 100, 100))
+                    self.adicionar_texto_flutuante("HIT!", bruxa.x, bruxa.y, (255, 100, 100))
         
         # Colisão jogador com morcegos
-        for morcego in self.morcegos[:]:
-            morcego_rect = pygame.Rect(morcego['x'] - 15, morcego['y'] - 15, 30, 30)
+        for morcego in gerenc.morcegos[:]:
+            morcego_rect = morcego.get_rect()
             
             if player_rect.colliderect(morcego_rect):
                 self.vida -= 12
                 self.adicionar_texto_flutuante("-12 VIDA", self.player.x, self.player.y - 30, (255, 50, 50))
-                self.morcegos.remove(morcego)
+                gerenc.morcegos.remove(morcego)
             
             # Colisão espada com morcego
             if sword_rect.colliderect(morcego_rect):
                 self.pontos += 15
-                self.adicionar_texto_flutuante("+15 pts", morcego['x'], morcego['y'], (255, 215, 0))
-                self.morcegos.remove(morcego)
+                self.adicionar_texto_flutuante("+15 pts", morcego.x, morcego.y, (255, 215, 0))
+                gerenc.morcegos.remove(morcego)
         
         # Colisão jogador com projéteis
-        for proj in self.projeteis[:]:
-            proj_rect = pygame.Rect(proj['x'] - 10, proj['y'] - 10, 20, 20)
+        for proj in gerenc.projeteis[:]:
+            proj_rect = proj.get_rect()
             
             if player_rect.colliderect(proj_rect):
                 self.vida -= 20
                 self.adicionar_texto_flutuante("-20 VIDA", self.player.x, self.player.y - 30, (255, 50, 50))
-                self.projeteis.remove(proj)
+                gerenc.projeteis.remove(proj)
         
         # Game Over se vida acabar
         if self.vida <= 0:
@@ -732,20 +538,8 @@ class Game:
                 self.sword.update(self.player.x, self.player.y, mouse_x, mouse_y)
                 self.rect = self.sword.draw(self.tela)
                 
-                # Spawn de inimigos
-                tempo_atual = pygame.time.get_ticks()
-                if tempo_atual - self.ultimo_spawn_bruxa > self.intervalo_spawn_bruxa:
-                    self.spawn_bruxa()
-                    self.ultimo_spawn_bruxa = tempo_atual
-                
-                if tempo_atual - self.ultimo_spawn_morcego > self.intervalo_spawn_morcego:
-                    self.spawn_morcego()
-                    self.ultimo_spawn_morcego = tempo_atual
-                
                 # Atualizar inimigos
-                self.atualizar_bruxas()
-                self.atualizar_morcegos()
-                self.atualizar_projeteis()
+                self.gerenciador_inimigos.atualizar(self.player.x, self.player.y)
                 
                 # Desenhar itens coletáveis
                 for item in self.coletaveis_ativos:
@@ -760,7 +554,7 @@ class Game:
                     templário = self.player.draw(self.tela)
                 
                 # Desenhar inimigos
-                self.desenhar_inimigos()
+                self.gerenciador_inimigos.desenhar(self.tela)
 
                 self.check_collisions(templário, self.rect)
                 self.check_colisoes_inimigos(templário, self.rect)
