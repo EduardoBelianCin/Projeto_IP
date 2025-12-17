@@ -69,8 +69,13 @@ class Bruxa:
     def desenhar(self, tela):
         """Desenha a bruxa na tela"""
         sprite = self.sprites[self.frame]
+        sprite_invertido = pygame.transform.flip(sprite, True, False)
         rect = sprite.get_rect(center=(int(self.x), int(self.y)))
-        tela.blit(sprite, rect)
+
+        if self.direcao > 0:
+            tela.blit(sprite_invertido, rect)
+        else:
+            tela.blit(sprite, rect)
     
     def get_rect(self):
         """Retorna o retângulo de colisão"""
@@ -95,6 +100,7 @@ class Morcego:
     def atualizar(self, jogador_x, jogador_y):
         """Atualiza movimento em direção ao jogador"""
         tempo_atual = pygame.time.get_ticks()
+        self.jogador_x = jogador_x
         
         # Calcular direção para o jogador
         dx = jogador_x - self.x
@@ -114,8 +120,13 @@ class Morcego:
     def desenhar(self, tela):
         """Desenha o morcego na tela"""
         sprite = self.sprites[self.frame]
+        sprite_invertido = pygame.transform.flip(sprite, True, False)
         rect = sprite.get_rect(center=(int(self.x), int(self.y)))
-        tela.blit(sprite, rect)
+        
+        if self.jogador_x > self.x:
+            tela.blit(sprite_invertido, rect)
+        else:
+            tela.blit(sprite, rect)
     
     def get_rect(self):
         """Retorna o retângulo de colisão"""
