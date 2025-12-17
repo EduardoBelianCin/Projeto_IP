@@ -5,8 +5,8 @@ from random import choice, randint
 pygame.mixer.init()
 
 som_fogo_cont = pygame.mixer.Sound("Audios/Som_cont_Fogo.mp3")
-som_fogo_cont.set_volume(0.2)
-canal10 = pygame.mixer.Channel(3)
+som_fogo_cont.set_volume(0.08)
+canalfogo = pygame.mixer.Channel(3)
 
 def carregar_sprites_animacao(caminho, num_frames):
     """Carrega sprites de animação de uma pasta"""
@@ -372,8 +372,8 @@ class GerenciadorInimigos:
         # Atualizar projéteis
         for proj in self.projeteis[:]:
             proj.atualizar()
-            if(canal10.get_busy() == False):
-                canal10.play(som_fogo_cont)
+            if(canalfogo.get_busy() == False):
+                canalfogo.play(som_fogo_cont)
             # Remover se sair da tela
             if proj.fora_da_tela(self.largura, self.altura):
                 self.projeteis.remove(proj)

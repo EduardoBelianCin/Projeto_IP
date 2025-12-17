@@ -13,21 +13,31 @@ from inimigos import GerenciadorInimigos
 pygame.init()
 pygame.mixer.init()
 
+canalbruxa = pygame.mixer.Channel(1)
+canalmorcego = pygame.mixer.Channel(2)
+
 som_maca = pygame.mixer.Sound("Audios/Successo.wav")
 som_moeda = pygame.mixer.Sound("Audios/SuccessInfographic.ogg")
 som_dima = pygame.mixer.Sound("Audios/Success_3.wav")
 
 som_espada_hit = pygame.mixer.Sound("Audios/sword_hit.mp3")
-som_espada_hit.set_volume(0.8)
+som_espada_hit.set_volume(1)
 
 
 ## Sons de inimigos:
 som_bruxa_morte = pygame.mixer.Sound("Audios/Grito_Bruxa.mp3")
-som_bruxa_morte.set_volume(0.5)
+som_bruxa_morte.set_volume(0.4)
 som_bruxa_riso  = pygame.mixer.Sound("Audios/Riso_Bruxa.mp3")
-som_bruxa_riso.set_volume(0.5)
+som_bruxa_riso.set_volume(0.4)
 som_fogo_ataque = pygame.mixer.Sound("Audios/Som_Fogo_Ataque.mp3")
-som_fogo_ataque.set_volume(0.5)
+som_fogo_ataque.set_volume(0.4)
+som_bruxa_voo = pygame.mixer.Sound("Audios/Bruxa_voo.mp3")
+som_bruxa_voo.set_volume(0.2)
+
+som_morcego_morte = pygame.mixer.Sound("Audios/Morcego_morte.mp3")
+som_morcego_morte.set_volume(0.5)
+som_morcego_voo = pygame.mixer.Sound("Audios/Morcego_voo.mp3")
+som_morcego_voo.set_volume(0.3)
 
 # Som de Vitória ---
 som_vitoria = pygame.mixer.Sound("Audios/victory.mp3")
@@ -286,6 +296,8 @@ class Game:
         
         # Colisão jogador com bruxas
         for bruxa in gerenc.bruxas[:]:
+            if(canalbruxa.get_busy() == False):
+                canalbruxa.play(som_bruxa_voo)
             bruxa_rect = bruxa.get_rect()
             
             if player_rect.colliderect(bruxa_rect):
@@ -308,9 +320,12 @@ class Game:
         
         # Colisão jogador com morcegos
         for morcego in gerenc.morcegos[:]:
+            if(canalmorcego.get_busy() == False):
+                canalmorcego.play(som_morcego_voo)
             morcego_rect = morcego.get_rect()
             
             if player_rect.colliderect(morcego_rect):
+                som_morcego_morte.play()
                 self.vida -= 12
                 self.adicionar_texto_flutuante("-12 VIDA", self.player.x, self.player.y - 30, (255, 50, 50))
                 gerenc.morcegos.remove(morcego)
@@ -318,6 +333,7 @@ class Game:
             # Colisão espada com morcego
             if sword_rect.colliderect(morcego_rect):
                 som_espada_hit.play()
+                som_morcego_morte.play()
                 self.pontos += 15
                 self.adicionar_texto_flutuante("+15 pts", morcego.x, morcego.y, (255, 215, 0))
                 gerenc.morcegos.remove(morcego)
@@ -342,7 +358,8 @@ class Game:
             
             if player_rect.colliderect(proj_rect):
                 som_fogo_ataque.play()
-                som_bruxa_riso.play()
+                if gerenc.bruxas: ## Previne que a risada aconteça sem nenhuma bruxa
+                    som_bruxa_riso.play()
                 self.vida -= 20
                 self.adicionar_texto_flutuante("-20 VIDA", self.player.x, self.player.y - 30, (255, 50, 50))
                 gerenc.projeteis.remove(proj)
@@ -416,6 +433,7 @@ class Game:
             # Ação de destruir (Colisão entre Espada e Item)
             if sword_rect.colliderect(hitbox_item):
                 # Texto flutuante ao destruir com espada
+                som_espada_hit.play()
                 self.adicionar_texto_flutuante("DESTRUIDO!", item.x, item.y, (255, 50, 50))
                 coletados.append(item) # Marca para remoção
         
