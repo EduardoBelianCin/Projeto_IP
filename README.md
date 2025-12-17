@@ -6,19 +6,19 @@ Miguel Henrique (mhrs)
 Yuri Oliveira (yao)  
 Sávio Rikelme (srfn)  
 ## Imagens
-![Menu Incial]("Screenshot 2025-12-17 153308.png")  
-![Jogo]("Screenshot 2025-12-17 153343.png")  
-![Tela de Derrota]("Screenshot 2025-12-17 153523.png")  
+![Menu Incial]("./Screenshot 2025-12-17 153308.png")  
+![Jogo]("./Screenshot 2025-12-17 153343.png")  
+![Tela de Derrota]("./Screenshot 2025-12-17 153523.png")  
 ## Arquitetura do Projeto
 PROJETO_IP  
 ├──audios --- arquivos de audio  
-├──sprites --- arquivos de imagem dos personagens  
-  ├──Boss  
-  ├──hud  
-  ├──templario  
-  ├──inimigos  
-  ├──itens  
-  ├──cursor  
+├──sprites --- arquivos das imagens que se movem
+    ├──Boss  
+    ├──hud  
+    ├──templario  
+    ├──inimigos  
+    ├──itens  
+    ├──cursor  
 ├──telas --- arquivos de imagens das telas  
 ├──coletaveis --- funções dos itens coletáveis  
 ├──cruzado --- funções do perosnagem jogável  
@@ -28,10 +28,10 @@ PROJETO_IP
 ├──Main --- funções principais que fazem o jogo ser executado  
 ## Ferramentas Utilizadas
 ## Divisão do Trabalho
-* Renan Feliciano - Crianção dos sprites e imagens presentes no jogo  
+* Renan Feliciano - Criação dos sprites e imagens presentes no jogo  
 * Eduardo Belian -  hud e plano de fundo do jogo  
 * Miguel Henrique - correção de bugs, e sistema de colisão e spawn dos inimigos  
-* Yuri Oliveira -  criação do spawn dos itens, sistema de contagem de pontos menu  
+* Yuri Oliveira -  criação do spawn dos itens, sistema de contagem de pontos e menu  
 * Sávio Rikelme - implementação das telas de morte e vitória  
 ## Conceitos Aprendidos em Aula
 * Laços de repetição  
