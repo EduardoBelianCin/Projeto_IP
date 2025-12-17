@@ -73,8 +73,6 @@ class Game:
         # Criar o jogador, passando os sprites
         self.player = Player(self.largura // 2, self.altura // 2, self.sprites)
 
-        Hud().cursor_customizado()
-
         self.coletaveis_ativos = []
 
         ##".convert()" ou ".convert_alpha()" melhora MUITO o desempenho das imagens e sprites, sem ele a performance cai.
@@ -89,6 +87,15 @@ class Game:
         self.diamantes = 0
         self.moedas = 0
         self.maçãs = 0
+
+        self.cursor = Hud().cursor_customizado()
+
+        self.img_menu = pygame.image.load("telas/menu.png").convert_alpha()
+        self.img_vitoria = pygame.image.load("telas/vitoria.png").convert_alpha()
+        self.img_derrota = pygame.image.load("telas/derrota.png").convert_alpha()
+        self.img_menu = pygame.transform.scale(self.img_menu, (self.largura, self.altura))
+        self.img_vitoria = pygame.transform.scale(self.img_vitoria, (self.largura, self.altura))
+        self.img_derrota = pygame.transform.scale(self.img_derrota, (self.largura, self.altura))
 
         self.vida = 50
         self.hud_sprites = Hud().load_hud_sprites("sprites/hud/barra de vida")
@@ -296,6 +303,20 @@ class Game:
                 self.pontos += 15
                 self.adicionar_texto_flutuante("+15 pts", morcego.x, morcego.y, (255, 215, 0))
                 gerenc.morcegos.remove(morcego)
+
+        for demo in gerenc.demos[:]:
+            demo_rect = demo.get_rect()
+            
+            if player_rect.colliderect(demo_rect):
+                self.vida -= 12
+                self.adicionar_texto_flutuante("-12 VIDA", self.player.x, self.player.y - 30, (255, 50, 50))
+                gerenc.demos.remove(demo)
+            
+            # Colisão espada com demo
+            if sword_rect.colliderect(demo_rect):
+                self.pontos += 15
+                self.adicionar_texto_flutuante("+15 pts", demo.x, demo.y, (255, 215, 0))
+                gerenc.demos.remove(demo)
         
         # Colisão jogador com projéteis
         for proj in gerenc.projeteis[:]:
@@ -325,6 +346,7 @@ class Game:
         self.timer_animacao = 0
         self.coletaveis_ativos.clear()
         self.textos_flutuantes.clear()  # Limpa textos flutuantes
+        self.gerenciador_inimigos.limpar()
         self.spawn_random_coin()
         # Reposicionar o jogador
         self.player.x = self.largura // 2
@@ -386,10 +408,9 @@ class Game:
         """Desenha o menu principal"""
         # Fundo do menu (mesmo do jogo mas mais escuro)
         self.tela.blit(self.BACKEST, (0, 0))
-        background_menu = pygame.image.load("telas/menu.png").convert_alpha()
-        background_menu = pygame.transform.scale(background_menu, (self.largura, self.altura))
-        rect_imagem = background_menu.get_rect(center=(self.largura // 2, self.altura // 2))
-        self.tela.blit(background_menu, rect_imagem)
+        rect_imagem = self.img_menu.get_rect(center=(self.largura // 2, self.altura // 2))
+        self.tela.blit(self.img_menu, rect_imagem)
+
         overlay = pygame.Surface((self.largura, self.altura))
         overlay.set_alpha(150)
         overlay.fill((0, 0, 0))
@@ -428,12 +449,10 @@ class Game:
         self.tela.blit(txt_creditos, txt_creditos.get_rect(center=(self.largura/2, self.altura - 30)))
 
     def exibir_vitoria(self, mouse_pos):
-        self.tela.fill((20, 20, 40))
         self.tela.blit(self.BACKEST, (0, 0))
-        background_vitoria = pygame.image.load("telas/vitoria.png").convert_alpha()
-        background_vitoria = pygame.transform.scale(background_vitoria, (self.largura, self.altura))
-        rect_imagem = background_vitoria.get_rect(center=(self.largura // 2, self.altura // 2))
-        self.tela.blit(background_vitoria, rect_imagem)
+        rect_imagem = self.img_vitoria.get_rect(center=(self.largura // 2, self.altura // 2))
+        self.tela.blit(self.img_vitoria, rect_imagem)
+
         overlay = pygame.Surface((self.largura, self.altura))
         overlay.set_alpha(150)
         overlay.fill((0, 0, 0))
@@ -466,12 +485,10 @@ class Game:
         self.tela.blit(txt_sair, txt_sair.get_rect(center=self.botao_sair.center))
 
     def exibir_derrota(self, mouse_pos):
-        self.tela.fill((20, 20, 40))
         self.tela.blit(self.BACKEST, (0, 0))
-        background_vitoria = pygame.image.load("telas/derrota.png").convert_alpha()
-        background_vitoria = pygame.transform.scale(background_vitoria, (self.largura, self.altura))
-        rect_imagem = background_vitoria.get_rect(center=(self.largura // 2, self.altura // 2))
-        self.tela.blit(background_vitoria, rect_imagem)
+        rect_imagem = self.img_vitoria.get_rect(center=(self.largura // 2, self.altura // 2))
+        self.tela.blit(self.img_vitoria, rect_imagem)
+
         overlay = pygame.Surface((self.largura, self.altura))
         overlay.set_alpha(150)
         overlay.fill((0, 0, 0))
@@ -536,7 +553,7 @@ class Game:
                             exit()
                 
                 self.exibir_menu(mouse_pos)
-                self.tela.blit(Hud().cursor_customizado(), mouse_pos)
+                self.tela.blit(self.cursor, mouse_pos)
             
             # ========== JOGANDO ==========
             elif self.estado == "JOGANDO":
