@@ -7,6 +7,7 @@ from cruzado import *
 from coletaveis import *
 from hud import Hud
 from inimigos import *
+from time import sleep as slp
 
 from inimigos import GerenciadorInimigos
 
@@ -41,11 +42,11 @@ som_morcego_voo.set_volume(0.3)
 
 # Som de Vitória ---
 som_vitoria = pygame.mixer.Sound("Audios/victory.mp3")
-som_vitoria.set_volume(0.5)
+som_vitoria.set_volume(1)
 
 # Som de Derrota ---
 som_derrota = pygame.mixer.Sound("Audios/derrota.mp3")
-som_vitoria.set_volume(0.1)
+som_derrota.set_volume(1)
 
 
 # Música de fundo do menu
@@ -194,6 +195,8 @@ class Game:
 
         self.MBB = False
         self.MBL = False
+        self.stopderrota = False
+        self.stopvitoria = False
         
     def adicionar_texto_flutuante(self, texto, x, y, cor):
         """Adiciona um texto flutuante na posição especificada"""
@@ -735,6 +738,9 @@ class Game:
             # ========== TELA DE VITÓRIA ==========
             elif self.estado == "VITORIA":
                 pygame.mixer.music.stop()
+                if(self.stopvitoria == False):
+                    pygame.mixer.stop()
+                    self.stopvitoria = True
 
                 for event in pygame.event.get():
                     if event.type == QUIT:
@@ -754,7 +760,13 @@ class Game:
                 self.tela.blit(Hud().cursor_customizado(), mouse_pos)
 
             elif self.estado == "DERROTA":
-                som_derrota.play()
+                pygame.mixer.music.stop()
+
+                if(self.stopderrota == False):
+                    pygame.mixer.stop()
+                    self.stopderrota = True
+                    som_derrota.play()
+
                 for event in pygame.event.get():
                     if event.type == QUIT:
                         pygame.quit()
