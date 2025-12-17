@@ -50,7 +50,7 @@ som_vitoria.set_volume(0.1)
 
 # Música de fundo do menu
 pygame.mixer.music.load("Audios/menu_music.mp3")
-pygame.mixer.music.set_volume(0.3)
+pygame.mixer.music.set_volume(0.5)
 musica_menu_disponivel = True
 
 som_maca.set_volume(0.2)
@@ -191,6 +191,9 @@ class Game:
         
         # Gerenciador de inimigos
         self.gerenciador_inimigos = GerenciadorInimigos(self.largura, self.altura)
+
+        self.MBB = False
+        self.MBL = False
         
     def adicionar_texto_flutuante(self, texto, x, y, cor):
         """Adiciona um texto flutuante na posição especificada"""
@@ -613,6 +616,17 @@ class Game:
                         self.fazendo_fade_out = False
                     else:
                         pygame.mixer.music.set_volume(self.volume_fade)
+
+                if(pygame.mixer.music.get_busy() == False)and(self.MBB==False):
+                    pygame.mixer.music.load("Audios/Musica_Background_begin.mp3")
+                    pygame.mixer_music.play()
+                    pygame.mixer.music.set_volume(0.5)
+                    self.MBB = True
+                elif(pygame.mixer.music.get_busy() == False)and(self.MBB==True)and(self.MBL==False):
+                    pygame.mixer.music.load("Audios/Musica_Background_loop.mp3")
+                    pygame.mixer_music.play(-1)
+                    pygame.mixer.music.set_volume(0.5)
+                    self.MBL = True
                 
                 # Checar sapwn do boss
                 if self.pontos >= 1000 and not self.boss_vivo and not self.boss_derrotado:
@@ -720,6 +734,8 @@ class Game:
             
             # ========== TELA DE VITÓRIA ==========
             elif self.estado == "VITORIA":
+                pygame.mixer.music.stop()
+
                 for event in pygame.event.get():
                     if event.type == QUIT:
                         pygame.quit()
