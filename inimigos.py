@@ -199,9 +199,9 @@ class GerenciadorInimigos:
         self.max_morcegos = 5
         
         # Carregar sprites
-        self.sprites_bruxa = carregar_sprites_animacao("sprites/inimigos/Bruxa/Fly", 4)
-        self.sprites_morcego = carregar_sprites_animacao("sprites/inimigos/morcego", 4)
-        self.sprites_projetil = carregar_sprites_animacao("sprites/inimigos/Bruxa/Attack", 5)
+        self.sprites_bruxa = carregar_sprites_animacao("sprites/Inimigos/Bruxa/Fly", 4)
+        self.sprites_morcego = carregar_sprites_animacao("sprites/Inimigos/Morcego", 4)
+        self.sprites_projetil = carregar_sprites_animacao("sprites/Inimigos/Bruxa/Attack", 5)
     
     def spawn_bruxa(self):
         """Cria uma nova bruxa"""
