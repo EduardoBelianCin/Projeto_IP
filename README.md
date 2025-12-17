@@ -1,4 +1,4 @@
-# Projeto_IP
+# A Lenda da Cruzada
 ## Membros do Grupo
 Renan Feliciano (rafms)  
 Eduardo Belian (eclb)  
@@ -6,7 +6,7 @@ Miguel Henrique (mhrs)
 Yuri Oliveira (yao)  
 Sávio Rikelme (srfn)  
 ## Imagens
-![Menu Incial](./menu-inicial.png)  
+![Menu Incial](./menu-inical.png)  
 ![Jogo](./jogabilidade.png)  
 ![Tela de Derrota](./tela-de-morte.png)  
 ## Arquitetura do Projeto
