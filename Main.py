@@ -21,6 +21,11 @@ som_dima = pygame.mixer.Sound("Audios/Success_3.wav")
 som_vitoria = pygame.mixer.Sound("Audios/victory.mp3")
 som_vitoria.set_volume(0.5)
 
+# Som de Derrota ---
+som_derrota = pygame.mixer.Sound("Audios/derrota.mp3")
+som_vitoria.set_volume(0.1)
+
+
 # Música de fundo do menu
 pygame.mixer.music.load("Audios/menu_music.mp3")
 pygame.mixer.music.set_volume(0.3)
@@ -644,6 +649,7 @@ class Game:
                 self.tela.blit(Hud().cursor_customizado(), mouse_pos)
 
             elif self.estado == "DERROTA":
+                som_derrota.play()
                 for event in pygame.event.get():
                     if event.type == QUIT:
                         pygame.quit()
