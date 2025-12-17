@@ -23,6 +23,10 @@ def carregar_sprites_animacao(caminho, num_frames):
             img_path = f"{caminho}/demo{i}.png"
         elif nome_pasta == "morcego":
             img_path = f"{caminho}/morcego{i}.png"
+        elif nome_pasta == "Boss.p1":    # Boss na fase 1
+            img_path = f"{caminho}/boss{i}.png"
+        elif nome_pasta == "Boss.p2":   # Boss na fase 2
+            img_path = f"{caminho}/boss{i}.png"
         else:
             img_path = f"{caminho}/{nome_pasta}{i}.png"
         
@@ -88,7 +92,6 @@ class Bruxa:
         """Retorna o retângulo de colisão"""
         return pygame.Rect(self.x - self.largura//2, self.y - self.altura//2, 
                           self.largura, self.altura)
-
 
 class Morcego:
     """Morcego que persegue o jogador"""
@@ -235,21 +238,44 @@ class Projetil:
 
 class Boss:
     def __init__(self, largura, altura):
-        try:
-            self.image = pygame.image.load("sprites/Inimigos/Boss/boss.p1.png").convert_alpha()
-            self.image = pygame.transform.scale(self.image, (250, 250))
-        except:
-            self.image = pygame.Surface((200, 200))
-            self.image.fill((255, 0, 0))
-            
-        self.rect = self.image.get_rect()
+        # 1. Primeiro declaramos as variáveis básicas
         self.x = largura // 2
         self.y = -300 
-        self.vida_max = 1000
-        self.vida = 1000
-        self.velocidade = 2 
+        self.vida_max = 300
+        self.vida = 300
+        self.velocidade = 2
+        self.frame = 0  # <--- Agora ela existe antes de ser usada!
+        self.timer_animacao = 0
+
+        # 2. Depois tentamos carregar os sprites
+        self.sprites = carregar_sprites_animacao("sprites/inimigos/Boss/Boss.p1", 6)
+        self.image = self.sprites[self.frame]
+            
+        # 3. Por fim, definimos o retângulo de colisão
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (self.x, self.y)
 
     def mover(self, px, py):
+        # Animação
+        tempo_atual = pygame.time.get_ticks()
+        self.jogador_x = px
+        
+        # Calcular direção para o jogador
+        dx = px - self.x
+        dy = py - self.y
+        distancia = (dx**2 + dy**2)**0.5
+        
+        if distancia > 0:
+            # Normalizar e aplicar velocidade
+            self.x += (dx / distancia) * self.velocidade
+            self.y += (dy / distancia) * self.velocidade
+        
+        # Atualizar animação
+        if tempo_atual - self.timer_animacao > 100:
+            self.frame = (self.frame + 1) % len(self.sprites)
+            self.timer_animacao = tempo_atual
+
+        # Movimento
         if self.y < 50:
             self.y += 3
         else:
@@ -261,23 +287,28 @@ class Boss:
         self.rect.topleft = (self.x, self.y)
 
     def draw(self, tela):
-        tela.blit(self.image, (self.x, self.y))
+        # Inverter o sprite dependendo da posição do jogador (igual aos outros)
+        # Se precisar, pode adicionar a lógica do flip aqui
+        sprite = self.sprites[self.frame]
+        sprite_invertido = pygame.transform.flip(sprite, True, False)
+        rect = sprite.get_rect(center=(int(self.x), int(self.y)))
 
-    # ESTE É O MÉTODO QUE ESTAVA FALTANDO:
+        if self.jogador_x > self.x:
+            tela.blit(sprite_invertido, rect)
+        else:
+            tela.blit(sprite, rect)
+
     def draw_health_bar(self, tela, largura_tela):
         largura_barra = 500
         x_barra = (largura_tela - largura_barra) // 2
         y_barra = 70
-        
-        # Fundo da barra (preto/vermelho escuro)
         pygame.draw.rect(tela, (50, 0, 0), (x_barra, y_barra, largura_barra, 25))
-        
-        # Vida atual (vermelho vivo)
         porcentagem = max(0, self.vida / self.vida_max)
         pygame.draw.rect(tela, (255, 0, 0), (x_barra, y_barra, largura_barra * porcentagem, 25))
-        
-        # Borda da barra
         pygame.draw.rect(tela, (255, 255, 255), (x_barra, y_barra, largura_barra, 25), 2)
+        if self.vida <= self.vida_max * 0.5:
+            self.sprites = carregar_sprites_animacao("sprites/inimigos/Boss/Boss.p2", 6)
+
 
 class GerenciadorInimigos:
     """Gerencia spawn e atualização de todos os inimigos"""
@@ -304,10 +335,10 @@ class GerenciadorInimigos:
         self.max_demos = 3
         
         # Carregar sprites
-        self.sprites_bruxa = carregar_sprites_animacao("sprites/Inimigos/Bruxa/Fly", 4)
-        self.sprites_morcego = carregar_sprites_animacao("sprites/Inimigos/Morcego", 4)
-        self.sprites_projetil = carregar_sprites_animacao("sprites/Inimigos/Bruxa/Attack", 5)
-        self.sprites_demo = carregar_sprites_animacao("sprites/Inimigos/Demo", 4)
+        self.sprites_bruxa = carregar_sprites_animacao("sprites/inimigos/Bruxa/Fly", 4)
+        self.sprites_morcego = carregar_sprites_animacao("sprites/inimigos/morcego", 4)
+        self.sprites_projetil = carregar_sprites_animacao("sprites/inimigos/Bruxa/Attack", 5)
+        self.sprites_demo = carregar_sprites_animacao("sprites/inimigos/Demo", 4)
     
     def spawn_bruxa(self):
         """Cria uma nova bruxa"""
