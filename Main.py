@@ -120,7 +120,7 @@ class Game:
         
         # Botão Jogar Novamente (tela de vitória)
         self.botao_jogar_novamente = pygame.Rect(0, 0, 300, 60)
-        self.botao_jogar_novamente.center = (self.largura // 2, self.altura // 2 + 200)
+        self.botao_jogar_novamente.center = (self.largura // 2, self.altura // 2 + 50)
         
         # Estados do jogo
         self.estado = "MENU"  # MENU, JOGANDO, VITORIA
@@ -309,7 +309,7 @@ class Game:
         # Game Over se vida acabar
         if self.vida <= 0:
             self.vida = 0
-            self.estado = "MENU"
+            self.estado = "DERROTA"
             self.adicionar_texto_flutuante("GAME OVER!", self.largura // 2, self.altura // 2, (255, 0, 0))
     
     def reiniciar_jogo(self):
@@ -386,21 +386,14 @@ class Game:
         """Desenha o menu principal"""
         # Fundo do menu (mesmo do jogo mas mais escuro)
         self.tela.blit(self.BACKEST, (0, 0))
+        background_menu = pygame.image.load("telas/menu.png").convert_alpha()
+        background_menu = pygame.transform.scale(background_menu, (self.largura, self.altura))
+        rect_imagem = background_menu.get_rect(center=(self.largura // 2, self.altura // 2))
+        self.tela.blit(background_menu, rect_imagem)
         overlay = pygame.Surface((self.largura, self.altura))
         overlay.set_alpha(150)
         overlay.fill((0, 0, 0))
         self.tela.blit(overlay, (0, 0))
-        
-        # Animação do personagem no centro-superior
-        agora = pygame.time.get_ticks()
-        if agora - self.timer_menu > 150:
-            self.frame_menu = (self.frame_menu + 1) % len(self.sprites_menu)
-            self.timer_menu = agora
-        
-        sprite = self.sprites_menu[self.frame_menu]
-        sprite_grande = pygame.transform.scale_by(sprite, 3)
-        rect_sprite = sprite_grande.get_rect(center=(self.largura // 2, self.altura // 2 - 150))
-        self.tela.blit(sprite_grande, rect_sprite)
         
         # Título do jogo
         fonte_titulo = pygame.font.SysFont("Arial", 80, True)
@@ -436,14 +429,15 @@ class Game:
 
     def exibir_vitoria(self, mouse_pos):
         self.tela.fill((20, 20, 40))
-        agora = pygame.time.get_ticks()
-        if agora - self.timer_animacao > 100:
-            self.frame_animacao = (self.frame_animacao + 1) % len(self.sprites_vitoria)
-            self.timer_animacao = agora
-        sprite = self.sprites_vitoria[self.frame_animacao]
-        sprite_grande = pygame.transform.scale_by(sprite, 2.5)
-        rect_sprite = sprite_grande.get_rect(center=(self.largura // 2, self.altura // 2 + 60))
-        self.tela.blit(sprite_grande, rect_sprite)
+        self.tela.blit(self.BACKEST, (0, 0))
+        background_vitoria = pygame.image.load("telas/vitoria.png").convert_alpha()
+        background_vitoria = pygame.transform.scale(background_vitoria, (self.largura, self.altura))
+        rect_imagem = background_vitoria.get_rect(center=(self.largura // 2, self.altura // 2))
+        self.tela.blit(background_vitoria, rect_imagem)
+        overlay = pygame.Surface((self.largura, self.altura))
+        overlay.set_alpha(150)
+        overlay.fill((0, 0, 0))
+        self.tela.blit(overlay, (0, 0))
         
         fonte_tit = pygame.font.SysFont("Arial", 60, True)
         fonte_sub = pygame.font.SysFont("Arial", 30, True)
@@ -462,6 +456,52 @@ class Game:
         txt_botao = fonte_botao.render("Jogar Novamente", True, (255, 255, 255))
         txt_rect = txt_botao.get_rect(center=self.botao_jogar_novamente.center)
         self.tela.blit(txt_botao, txt_rect)
+
+        # Desenhar botão "SAIR"
+        cor_sair = (150, 50, 50) if self.botao_sair.collidepoint(mouse_pos) else (100, 30, 30)
+        pygame.draw.rect(self.tela, cor_sair, self.botao_sair, border_radius=15)
+        pygame.draw.rect(self.tela, (255, 215, 0), self.botao_sair, 4, border_radius=15)
+        
+        txt_sair = fonte_botao.render("SAIR", True, (255, 255, 255))
+        self.tela.blit(txt_sair, txt_sair.get_rect(center=self.botao_sair.center))
+
+    def exibir_derrota(self, mouse_pos):
+        self.tela.fill((20, 20, 40))
+        self.tela.blit(self.BACKEST, (0, 0))
+        background_vitoria = pygame.image.load("telas/derrota.png").convert_alpha()
+        background_vitoria = pygame.transform.scale(background_vitoria, (self.largura, self.altura))
+        rect_imagem = background_vitoria.get_rect(center=(self.largura // 2, self.altura // 2))
+        self.tela.blit(background_vitoria, rect_imagem)
+        overlay = pygame.Surface((self.largura, self.altura))
+        overlay.set_alpha(150)
+        overlay.fill((0, 0, 0))
+        self.tela.blit(overlay, (0, 0))
+        
+        fonte_tit = pygame.font.SysFont("Arial", 60, True)
+        fonte_sub = pygame.font.SysFont("Arial", 30, True)
+        txt1 = fonte_tit.render("Você perdeu, Cavaleiro!", True, (255, 215, 0))
+        txt2 = fonte_sub.render("Você sucumbiu perante os inimigos!", True, (255, 255, 255))
+        self.tela.blit(txt1, txt1.get_rect(center=(self.largura/2, self.altura/2 - 140)))
+        self.tela.blit(txt2, txt2.get_rect(center=(self.largura/2, self.altura/2 - 70)))
+        
+        # Desenhar botão "Jogar Novamente"
+        cor_botao = (50, 150, 50) if self.botao_jogar_novamente.collidepoint(mouse_pos) else (30, 100, 30)
+        
+        pygame.draw.rect(self.tela, cor_botao, self.botao_jogar_novamente, border_radius=10)
+        pygame.draw.rect(self.tela, (255, 215, 0), self.botao_jogar_novamente, 3, border_radius=10)
+        
+        fonte_botao = pygame.font.SysFont("Arial", 35, True)
+        txt_botao = fonte_botao.render("Jogar Novamente", True, (255, 255, 255))
+        txt_rect = txt_botao.get_rect(center=self.botao_jogar_novamente.center)
+        self.tela.blit(txt_botao, txt_rect)
+
+        # Desenhar botão "SAIR"
+        cor_sair = (150, 50, 50) if self.botao_sair.collidepoint(mouse_pos) else (100, 30, 30)
+        pygame.draw.rect(self.tela, cor_sair, self.botao_sair, border_radius=15)
+        pygame.draw.rect(self.tela, (255, 215, 0), self.botao_sair, 4, border_radius=15)
+        
+        txt_sair = fonte_botao.render("SAIR", True, (255, 255, 255))
+        self.tela.blit(txt_sair, txt_sair.get_rect(center=self.botao_sair.center))
     
     def run(self):
         while True:
@@ -595,8 +635,31 @@ class Game:
                     if event.type == MOUSEBUTTONDOWN and event.button == 1:
                         if self.botao_jogar_novamente.collidepoint(event.pos):
                             self.reiniciar_jogo()
+
+                        if self.botao_sair.collidepoint(event.pos):
+                            pygame.quit()
+                            exit()
                 
                 self.exibir_vitoria(mouse_pos)
+                self.tela.blit(Hud().cursor_customizado(), mouse_pos)
+
+            elif self.estado == "DERROTA":
+                for event in pygame.event.get():
+                    if event.type == QUIT:
+                        pygame.quit()
+                        exit()
+                    
+                    # Detectar clique no botão (apenas com botão esquerdo do mouse)
+                    if event.type == MOUSEBUTTONDOWN and event.button == 1:
+                        if self.botao_jogar_novamente.collidepoint(event.pos):
+                            self.reiniciar_jogo()
+                        
+                        if self.botao_sair.collidepoint(event.pos):
+                            pygame.quit()
+                            exit()
+
+                
+                self.exibir_derrota(mouse_pos)
                 self.tela.blit(Hud().cursor_customizado(), mouse_pos)
 
             pygame.display.update()
