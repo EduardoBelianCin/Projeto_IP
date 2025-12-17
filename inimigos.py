@@ -32,7 +32,7 @@ class Bruxa:
         self.x = x
         self.y = y
         self.vida = 3
-        self.velocidade = 2
+        self.velocidade = 8
         self.direcao = 1 if x < 400 else -1
         self.ultimo_tiro = pygame.time.get_ticks()
         self.intervalo_tiro = 3000  # 3 segundos
