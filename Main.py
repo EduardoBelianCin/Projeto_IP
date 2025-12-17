@@ -17,6 +17,18 @@ som_maca = pygame.mixer.Sound("Audios/Successo.wav")
 som_moeda = pygame.mixer.Sound("Audios/SuccessInfographic.ogg")
 som_dima = pygame.mixer.Sound("Audios/Success_3.wav")
 
+som_espada_hit = pygame.mixer.Sound("Audios/sword_hit.mp3")
+som_espada_hit.set_volume(0.8)
+
+
+## Sons de inimigos:
+som_bruxa_morte = pygame.mixer.Sound("Audios/Grito_Bruxa.mp3")
+som_bruxa_morte.set_volume(0.5)
+som_bruxa_riso  = pygame.mixer.Sound("Audios/Riso_Bruxa.mp3")
+som_bruxa_riso.set_volume(0.5)
+som_fogo_ataque = pygame.mixer.Sound("Audios/Som_Fogo_Ataque.mp3")
+som_fogo_ataque.set_volume(0.5)
+
 # Som de Vitória ---
 som_vitoria = pygame.mixer.Sound("Audios/victory.mp3")
 som_vitoria.set_volume(0.5)
@@ -268,14 +280,17 @@ class Game:
             bruxa_rect = bruxa.get_rect()
             
             if player_rect.colliderect(bruxa_rect):
+                som_bruxa_riso.play()
                 self.vida -= 20
                 self.adicionar_texto_flutuante("-20 VIDA", self.player.x, self.player.y - 30, (255, 50, 50))
                 gerenc.bruxas.remove(bruxa)
             
             # Colisão espada com bruxa
             if sword_rect.colliderect(bruxa_rect):
+                som_espada_hit.play()
                 bruxa.vida -= 1
                 if bruxa.vida <= 0:
+                    som_bruxa_morte.play()
                     self.pontos += 30
                     self.adicionar_texto_flutuante("+30 pts", bruxa.x, bruxa.y, (255, 215, 0))
                     gerenc.bruxas.remove(bruxa)
@@ -293,6 +308,7 @@ class Game:
             
             # Colisão espada com morcego
             if sword_rect.colliderect(morcego_rect):
+                som_espada_hit.play()
                 self.pontos += 15
                 self.adicionar_texto_flutuante("+15 pts", morcego.x, morcego.y, (255, 215, 0))
                 gerenc.morcegos.remove(morcego)
@@ -302,6 +318,8 @@ class Game:
             proj_rect = proj.get_rect()
             
             if player_rect.colliderect(proj_rect):
+                som_fogo_ataque.play()
+                som_bruxa_riso.play()
                 self.vida -= 20
                 self.adicionar_texto_flutuante("-20 VIDA", self.player.x, self.player.y - 30, (255, 50, 50))
                 gerenc.projeteis.remove(proj)
