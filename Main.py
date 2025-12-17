@@ -105,9 +105,11 @@ class Game:
         self.img_menu = pygame.image.load("telas/menu.png").convert_alpha()
         self.img_vitoria = pygame.image.load("telas/vitoria.png").convert_alpha()
         self.img_derrota = pygame.image.load("telas/derrota.png").convert_alpha()
+        self.img_logo = pygame.image.load("telas/logo.png").convert_alpha()
         self.img_menu = pygame.transform.scale(self.img_menu, (self.largura, self.altura))
         self.img_vitoria = pygame.transform.scale(self.img_vitoria, (self.largura, self.altura))
         self.img_derrota = pygame.transform.scale(self.img_derrota, (self.largura, self.altura))
+        self.img_logo = pygame.transform.scale(self.img_logo, (self.largura/2, self.altura/2))
 
         self.vida = 50
         self.hud_sprites = Hud().load_hud_sprites("sprites/hud/barra de vida")
@@ -430,19 +432,18 @@ class Game:
         self.tela.blit(self.img_menu, rect_imagem)
 
         overlay = pygame.Surface((self.largura, self.altura))
-        overlay.set_alpha(150)
+        overlay.set_alpha(100)
         overlay.fill((0, 0, 0))
         self.tela.blit(overlay, (0, 0))
+
+        # Logo do jogo
+        rect_logo = self.img_logo.get_rect(center=(self.largura // 2, self.altura // 5))
+        self.tela.blit(self.img_logo, rect_logo)
         
-        # Título do jogo
-        fonte_titulo = pygame.font.SysFont("Arial", 80, True)
+        # legenda do jogo
         fonte_subtitulo = pygame.font.SysFont("Arial", 35, True)
-        
-        txt_titulo = fonte_titulo.render("A LENDA DA CRUZADA", True, (255, 215, 0))
-        txt_sub = fonte_subtitulo.render("Colete 1000 pontos para vencer!", True, (200, 200, 200))
-        
-        self.tela.blit(txt_titulo, txt_titulo.get_rect(center=(self.largura/2, 100)))
-        self.tela.blit(txt_sub, txt_sub.get_rect(center=(self.largura/2, 180)))
+        txt_sub = fonte_subtitulo.render("Colete 1000 pontos para vencer!", True, (255, 255, 255))
+        self.tela.blit(txt_sub, txt_sub.get_rect(center=(self.largura/2, 500)))
         
         # Botão JOGAR
         cor_jogar = (50, 150, 50) if self.botao_jogar.collidepoint(mouse_pos) else (30, 100, 30)
