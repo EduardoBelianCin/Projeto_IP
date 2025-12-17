@@ -6,19 +6,19 @@ Miguel Henrique (mhrs)
 Yuri Oliveira (yao)  
 Sávio Rikelme (srfn)  
 ## Imagens
-![Menu Incial](Screenshot 2025-12-17 153308.png)  
-![Jogo](Screenshot 2025-12-17 153343.png)  
-![Tela de Derrota](Screenshot 2025-12-17 153523.png)  
+![Menu Incial]("Screenshot 2025-12-17 153308.png")  
+![Jogo]("Screenshot 2025-12-17 153343.png")  
+![Tela de Derrota]("Screenshot 2025-12-17 153523.png")  
 ## Arquitetura do Projeto
 PROJETO_IP  
 ├──audios --- arquivos de audio  
 ├──sprites --- arquivos de imagem dos personagens  
-    ├──Boss  
-    ├──hud  
-    ├──templario  
-    ├──inimigos  
-    ├──itens  
-    ├──cursor  
+  ├──Boss  
+  ├──hud  
+  ├──templario  
+  ├──inimigos  
+  ├──itens  
+  ├──cursor  
 ├──telas --- arquivos de imagens das telas  
 ├──coletaveis --- funções dos itens coletáveis  
 ├──cruzado --- funções do perosnagem jogável  
