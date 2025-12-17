@@ -51,11 +51,11 @@ class Coin:
 
 class Diamante(Coin):
     def __init__(self, x, y):
-        super().__init__(x, y, "diamante.png", 50)
+        super().__init__(x, y, "diamante.png", 200)
 
 class Moeda(Coin):
     def __init__(self, x, y):
-        super().__init__(x, y, "moeda.png", 10)
+        super().__init__(x, y, "moeda.png", 50)
 
 class Maça(Coin):
     def __init__(self, x, y):

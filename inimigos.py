@@ -1,6 +1,7 @@
 import pygame
 import os
 from random import choice, randint
+import math
 
 pygame.mixer.init()
 
@@ -232,6 +233,51 @@ class Projetil:
         return (self.x < -50 or self.x > largura_tela + 50 or 
                 self.y < -50 or self.y > altura_tela + 50)
 
+class Boss:
+    def __init__(self, largura, altura):
+        try:
+            self.image = pygame.image.load("sprites/inimigos/boss.png").convert_alpha()
+            self.image = pygame.transform.scale(self.image, (250, 250))
+        except:
+            self.image = pygame.Surface((200, 200))
+            self.image.fill((255, 0, 0))
+            
+        self.rect = self.image.get_rect()
+        self.x = largura // 2
+        self.y = -300 
+        self.vida_max = 1000
+        self.vida = 1000
+        self.velocidade = 2 
+
+    def mover(self, px, py):
+        if self.y < 50:
+            self.y += 3
+        else:
+            if self.x < px: self.x += self.velocidade
+            if self.x > px: self.x -= self.velocidade
+            if self.y < py: self.y += self.velocidade
+            if self.y > py: self.y -= self.velocidade
+        
+        self.rect.topleft = (self.x, self.y)
+
+    def draw(self, tela):
+        tela.blit(self.image, (self.x, self.y))
+
+    # ESTE É O MÉTODO QUE ESTAVA FALTANDO:
+    def draw_health_bar(self, tela, largura_tela):
+        largura_barra = 500
+        x_barra = (largura_tela - largura_barra) // 2
+        y_barra = 70
+        
+        # Fundo da barra (preto/vermelho escuro)
+        pygame.draw.rect(tela, (50, 0, 0), (x_barra, y_barra, largura_barra, 25))
+        
+        # Vida atual (vermelho vivo)
+        porcentagem = max(0, self.vida / self.vida_max)
+        pygame.draw.rect(tela, (255, 0, 0), (x_barra, y_barra, largura_barra * porcentagem, 25))
+        
+        # Borda da barra
+        pygame.draw.rect(tela, (255, 255, 255), (x_barra, y_barra, largura_barra, 25), 2)
 
 class GerenciadorInimigos:
     """Gerencia spawn e atualização de todos os inimigos"""

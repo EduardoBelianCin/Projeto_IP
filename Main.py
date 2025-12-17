@@ -110,6 +110,10 @@ class Game:
         self.moedas = 0
         self.maçãs = 0
 
+        self.boss = None
+        self.boss_vivo = False
+        self.boss_derrotado = False
+
         self.cursor = Hud().cursor_customizado()
 
         self.img_menu = pygame.image.load("telas/menu.png").convert_alpha()
@@ -605,13 +609,37 @@ class Game:
                     else:
                         pygame.mixer.music.set_volume(self.volume_fade)
                 
-                # Checar vitória
-                if self.pontos >= 1000 and not self.fim_de_jogo:
-                    self.fim_de_jogo = True
-                    self.inicio_vitoria_tempo = tempo_atual
-                    self.estado = "VITORIA"
-                    som_vitoria.play()
-                
+                # Checar sapwn do boss
+                if self.pontos >= 1000 and not self.boss_vivo and not self.boss_derrotado:
+                    from inimigos import Boss # Certifique-se de ter a classe Boss no inimigos.py
+                    self.boss = Boss(self.largura, self.altura)
+                    self.boss_vivo = True
+                    self.adicionar_texto_flutuante("O CHEFE DESPERTOU!", self.largura//2, self.altura//2, (255, 0, 0))
+
+                if self.boss_vivo and self.boss:
+                    self.boss.mover(self.player.x, self.player.y)
+                    
+                    # Colisão: Espada atinge o Boss
+                    if self.rect.colliderect(self.boss.rect):
+                        if pygame.time.get_ticks() % 5 == 0: # Evita que o dano seja por frame (muito rápido)
+                            self.boss.vida -= 5
+                            som_espada_hit.play()
+                            self.adicionar_texto_flutuante("-5", self.boss.x, self.boss.y, (255, 255, 255))
+
+                    # Colisão: Boss atinge o Jogador
+                    if templário.colliderect(self.boss.rect):
+                        if pygame.time.get_ticks() % 20 == 0:
+                            self.vida -= 10
+                            self.adicionar_texto_flutuante("-10 VIDA", self.player.x, self.player.y, (255, 0, 0))
+
+                    # Morte do Boss = VITÓRIA
+                    if self.boss.vida <= 0:
+                        self.boss_vivo = False
+                        self.boss_derrotado = True
+                        self.boss = None
+                        self.estado = "VITORIA"
+                        som_vitoria.play()
+
                 self.tela.fill((0, 0, 0))
                 self.tela.blit(self.BACKEST, (0, 0))
 
@@ -652,6 +680,10 @@ class Game:
 
                 self.check_collisions(templário, self.rect)
                 self.check_colisoes_inimigos(templário, self.rect)
+
+                if self.boss_vivo and self.boss:
+                    self.boss.draw(self.tela)
+                    self.boss.draw_health_bar(self.tela, self.largura)
                 
                 # Atualizar e desenhar textos flutuantes
                 self.atualizar_textos_flutuantes()
