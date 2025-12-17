@@ -507,7 +507,7 @@ class Game:
         fonte_tit = pygame.font.SysFont("Arial", 60, True)
         fonte_sub = pygame.font.SysFont("Arial", 30, True)
         txt1 = fonte_tit.render("Parabéns, Cavaleiro!", True, (255, 215, 0))
-        txt2 = fonte_sub.render("Você coletou os 1000 pontos!", True, (255, 255, 255))
+        txt2 = fonte_sub.render("Você Salvou o Mundo das Forças das Trevas!", True, (255, 255, 255))
         self.tela.blit(txt1, txt1.get_rect(center=(self.largura/2, self.altura/2 - 140)))
         self.tela.blit(txt2, txt2.get_rect(center=(self.largura/2, self.altura/2 - 70)))
         
@@ -666,7 +666,10 @@ class Game:
                 self.rect = self.sword.draw(self.tela)
                 
                 # Atualizar inimigos
-                self.gerenciador_inimigos.atualizar(self.player.x, self.player.y)
+                if self.boss_vivo == False:
+                    self.gerenciador_inimigos.atualizar(self.player.x, self.player.y)
+                else:
+                    self.gerenciador_inimigos.limpar()
                 
                 # Desenhar itens coletáveis
                 for item in self.coletaveis_ativos:

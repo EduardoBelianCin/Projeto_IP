@@ -236,7 +236,7 @@ class Projetil:
 class Boss:
     def __init__(self, largura, altura):
         try:
-            self.image = pygame.image.load("sprites/inimigos/boss.png").convert_alpha()
+            self.image = pygame.image.load("sprites/Inimigos/Boss/boss.p1.png").convert_alpha()
             self.image = pygame.transform.scale(self.image, (250, 250))
         except:
             self.image = pygame.Surface((200, 200))
