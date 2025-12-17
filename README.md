@@ -6,26 +6,26 @@ Miguel Henrique (mhrs)
 Yuri Oliveira (yao)  
 Sávio Rikelme (srfn)  
 ## Imagens
-![Menu Incial]("./Screenshot 2025-12-17 153308.png")  
-![Jogo]("./Screenshot 2025-12-17 153343.png")  
-![Tela de Derrota]("./Screenshot 2025-12-17 153523.png")  
+![Menu Incial](./menu-inicial.png)  
+![Jogo](./jogabilidade.png)  
+![Tela de Derrota](./tela-de-morte.png)  
 ## Arquitetura do Projeto
 PROJETO_IP  
-├──audios --- arquivos de audio  
-├──sprites --- arquivos das imagens que se movem
-    ├──Boss  
-    ├──hud  
-    ├──templario  
-    ├──inimigos  
-    ├──itens  
-    ├──cursor  
-├──telas --- arquivos de imagens das telas  
-├──coletaveis --- funções dos itens coletáveis  
-├──cruzado --- funções do perosnagem jogável  
-├──hud --- funções do hud   
-├──inimigos --- funções dos inimigos mais basicos  
-├──boss --- funções do boss final  
-├──Main --- funções principais que fazem o jogo ser executado  
+- ├──audios --- arquivos de audio  
+- ├──sprites --- arquivos das imagens que se movem  
+  - ├──Boss  
+  - ├──hud  
+  - ├──templario
+  - ├──inimigos  
+  - ├──itens  
+  - ├──cursor  
+- ├──telas --- arquivos de imagens das telas  
+- ├──coletaveis --- funções dos itens coletáveis  
+- ├──cruzado --- funções do perosnagem jogável  
+- ├──hud --- funções do hud   
+- ├──inimigos --- funções dos inimigos mais basicos  
+- ├──boss --- funções do boss final  
+- ├──Main --- funções principais que fazem o jogo ser executado  
 ## Ferramentas Utilizadas
 ## Divisão do Trabalho
 * Renan Feliciano - Criação dos sprites e imagens presentes no jogo  
