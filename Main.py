@@ -505,8 +505,8 @@ class Game:
 
     def exibir_derrota(self, mouse_pos):
         self.tela.blit(self.BACKEST, (0, 0))
-        rect_imagem = self.img_vitoria.get_rect(center=(self.largura // 2, self.altura // 2))
-        self.tela.blit(self.img_vitoria, rect_imagem)
+        rect_imagem = self.img_derrota.get_rect(center=(self.largura // 2, self.altura // 2))
+        self.tela.blit(self.img_derrota, rect_imagem)
 
         overlay = pygame.Surface((self.largura, self.altura))
         overlay.set_alpha(150)
