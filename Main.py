@@ -675,14 +675,7 @@ class Game:
                 
                 # Checar spawn do boss
                 if self.pontos >= 1000 and not self.boss_vivo and not self.boss_derrotado:
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                     som_boss.play()
-                    from inimigos import Boss # Certifique-se de ter a classe Boss no inimigos.py
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
                     self.boss = Boss(self.largura, self.altura)
                     self.boss_vivo = True
                     self.adicionar_texto_flutuante("AS TREVAS CAIRÃO SOBRE VOCÊ!", self.largura//2, self.altura//2, (255, 0, 0))
@@ -841,7 +834,6 @@ class Game:
                             pygame.quit()
                             exit()
 
-                
                 self.exibir_derrota(mouse_pos)
                 self.tela.blit(Hud().cursor_customizado(), mouse_pos)
 
