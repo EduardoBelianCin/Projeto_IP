@@ -31,9 +31,9 @@ PROJETO_IP
 ## Divisão do Trabalho
 * Renan Feliciano - Criação dos sprites e imagens presentes no jogo  
 * Eduardo Belian - HUD de coletáveis e Criação do mapa do jogo  
-* Miguel Henrique - correção de bugs, e sistema de colisão e spawn dos inimigos  
+* Miguel Henrique - correção de bugs, e correção de sistema de colisão e spawn dos inimigos, música de background, sons de alguns inimigos  
 * Yuri Oliveira -  criação do spawn dos itens, sistema de contagem de pontos e menu  
-* Sávio Rikelme - implementação das telas de morte e vitória  
+* Sávio Rikelme - implementação das telas de morte e vitória, sons de alguns inimigos
 ## Conceitos Aprendidos em Aula
 * Laços de repetição  
 * Funções  
