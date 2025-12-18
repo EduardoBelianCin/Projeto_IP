@@ -245,9 +245,12 @@ class Boss:
         self.altura = altura
         self.x = largura // 2
         self.y = -300 
-        self.vida_max = 400
-        self.vida = 400
+        self.vida_max = 500
+        self.vida = 500
         self.velocidade = 3
+
+        self.estado_fuga = False
+        self.timer_comportamento = pygame.time.get_ticks()
         
         # Animação
         self.frame = 0
@@ -298,11 +301,31 @@ class Boss:
         tempo_atual = pygame.time.get_ticks()
 
         # Movimento em direção ao jogador
+        tempo_passado = tempo_atual - self.timer_comportamento
+    
+        if not self.estado_fuga:
+            # Se passaram 5 segundos perseguindo, começa a fugir
+            if tempo_passado > 5000:
+                self.estado_fuga = True
+                self.timer_comportamento = tempo_atual
+        else:
+            # Se passaram 2 segundos fugindo, volta a perseguir
+            if tempo_passado > 1500:
+                self.estado_fuga = False
+                self.timer_comportamento = tempo_atual
+
         dx, dy = px - self.x, py - self.y
         distancia = math.hypot(dx, dy)
+        
         if distancia > 0:
-            self.x += (dx / distancia) * self.velocidade
-            self.y += (dy / distancia) * self.velocidade
+            # Se estado_fuga for True, o multiplicador é -1 (afasta), se False é 1 (aproxima)
+            multiplicador = -1 if self.estado_fuga else 1
+            
+            # Ajustamos a velocidade: talvez ele fuja mais rápido ou mais devagar?
+            vel_atual = self.velocidade if not self.estado_fuga else self.velocidade * 1.2
+        
+        self.x += (dx / distancia) * vel_atual * multiplicador
+        self.y += (dy / distancia) * vel_atual * multiplicador
 
         # Atualizar Animação
         if tempo_atual - self.timer_animacao > 100:
@@ -357,7 +380,7 @@ class Boss:
         # Troca de Fase
         if self.vida <= self.vida_max / 2:
             self.sprites = self.sprites_p2
-            self.velocidade = 3
+            self.velocidade = 4
 
     def get_rect(self):
         return self.rect
@@ -460,7 +483,7 @@ class GerenciadorInimigos:
         distancia = (dx**2 + dy**2)**0.5
         
         if distancia > 0:
-            velocidade_proj = 5
+            velocidade_proj = 8
             vel_x = (dx / distancia) * velocidade_proj
             vel_y = (dy / distancia) * velocidade_proj
             
