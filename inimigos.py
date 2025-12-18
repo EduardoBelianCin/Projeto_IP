@@ -241,54 +241,47 @@ class Projetil:
 
 class Boss:
     def __init__(self, largura, altura):
+        self.largura = largura
+        self.altura = altura
         self.x = largura // 2
         self.y = -300 
         self.vida_max = 400
         self.vida = 400
         self.velocidade = 1.5
+        
+        # Animação
         self.frame = 0
         self.timer_animacao = 0
-        self.altura = altura
-        self.largura = largura
-
-        # 2. Depois tentamos carregar os sprites
-        self.sprites = carregar_sprites_animacao("sprites/Inimigos/Boss/Boss.p1", 6)
-        self.image = self.sprites[self.frame]
-            
-        # 3. Por fim, definimos o retângulo de colisão
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (self.x, self.y)
-
-    def mover(self, px, py):
-        # Animação
-        tempo_atual = pygame.time.get_ticks()
-        self.jogador_x = px
-
+        
+        # Projéteis e Ataque (DEFINIDOS AQUI NO INIT)
+        self.energia = []
         self.ultimo_tiro = pygame.time.get_ticks()
         self.intervalo_tiro = 1000
         self.velocidade_proj = 5
-        self.energia = []
-
         
         # Carregamento de Sprites
-        self.sprites_p1 = carregar_sprites_animacao("sprites/inimigos/Boss/Boss.p1", 6)
-        self.sprites_p2 = carregar_sprites_animacao("sprites/inimigos/Boss/Boss.p2", 6)
-        self.sprites_energia = carregar_sprites_animacao("sprites/inimigos/Boss/energy", 4)
+        self.sprites_p1 = carregar_sprites_animacao("sprites/Inimigos/Boss/Boss.p1", 6)
+        self.sprites_p2 = carregar_sprites_animacao("sprites/Inimigos/Boss/Boss.p2", 6)
+        self.sprites_energia = carregar_sprites_animacao("sprites/Inimigos/Boss/energy", 4)
         
         self.sprites = self.sprites_p1
         self.image = self.sprites[self.frame]
         self.rect = self.image.get_rect(center=(self.x, self.y))
+        
+        # Para o flip do sprite
+        self.px = 0 
 
     def pode_atirar(self):
         tempo_atual = pygame.time.get_ticks()
+        # Se vida < 50%, atira mais rápido
         intervalo = self.intervalo_tiro if self.vida > self.vida_max / 2 else self.intervalo_tiro / 1.5
         
         if tempo_atual - self.ultimo_tiro > intervalo:
             self.ultimo_tiro = tempo_atual
+            # Chance de ataque especial em fase 2
             return 2 if (self.vida <= self.vida_max / 2 and randint(0, 10) > 7) else 1
         return 0
 
-    # ESTE É O MÉTODO QUE ESTAVA FALTANDO OU DESALINHADO
     def atirar(self, x_origem, y_origem, x_destino, y_destino):
         dx = x_destino - x_origem
         dy = y_destino - y_origem
@@ -304,27 +297,25 @@ class Boss:
         self.px, self.py = px, py
         tempo_atual = pygame.time.get_ticks()
 
-        # Movimento
+        # Movimento em direção ao jogador
         dx, dy = px - self.x, py - self.y
         distancia = math.hypot(dx, dy)
         if distancia > 0:
             self.x += (dx / distancia) * self.velocidade
             self.y += (dy / distancia) * self.velocidade
 
-        # Animação
+        # Atualizar Animação
         if tempo_atual - self.timer_animacao > 100:
             self.frame = (self.frame + 1) % len(self.sprites)
             self.timer_animacao = tempo_atual
         
-        self.rect.topleft = (self.x-50, self.y-50)
-
         self.image = self.sprites[self.frame]
         self.rect = self.image.get_rect(center=(int(self.x), int(self.y)))
 
-        # Atualizar projéteis
+        # Atualizar projéteis existentes (Sem resetar a lista!)
         for proj in self.energia[:]:
             proj.atualizar()
-            if proj.fora_da_tela(1920, 1080):
+            if proj.fora_da_tela(1920, 1080): # Ajuste para sua resolução se necessário
                 self.energia.remove(proj)
 
         # Lógica de Disparo
@@ -333,49 +324,43 @@ class Boss:
             self.atirar(self.x, self.y, px, py)
         elif tipo == 2:
             # Ataque em Cruz
-            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                self.atirar(self.x, self.y, self.x + dx, self.y + dy)
+            for dx_c, dy_c in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                self.atirar(self.x, self.y, self.x + dx_c, self.y + dy_c)
 
     def draw(self, tela):
+        # Desenha os tiros do boss
         for proj in self.energia:
             proj.desenhar(tela)
         
-        sprite = self.sprites[self.frame]
+        # Desenha o boss (com flip baseado na posição do player)
+        sprite_atual = self.sprites[self.frame]
         if self.px > self.x:
-            sprite = pygame.transform.flip(sprite, True, False)
-        tela.blit(sprite, self.rect)
+            sprite_atual = pygame.transform.flip(sprite_atual, True, False)
+        tela.blit(sprite_atual, self.rect)
 
     def draw_health_bar(self, tela, largura_tela):
-        # Configurações da posição da barra
         largura_barra = 500
-        altura_barra = 25
+        altura_barra = 20
         x_barra = (largura_tela - largura_barra) // 2
-        y_barra = 70  # Definindo o valor que faltava
+        y_barra = 70 # FIX: Agora y_barra está definido aqui
         
-        # 1. Fundo da barra (Cor escura/vinho)
+        # Fundo (Vinho)
         pygame.draw.rect(tela, (50, 0, 0), (x_barra, y_barra, largura_barra, altura_barra))
         
-        # 2. Calcular preenchimento
+        # Vida atual (Vermelho)
         porcentagem = max(0, self.vida / self.vida_max)
+        pygame.draw.rect(tela, (255, 0, 0), (x_barra, y_barra, int(largura_barra * porcentagem), altura_barra))
         
-        # 3. Desenhar o preenchimento (Vermelho)
-        pygame.draw.rect(tela, (255, 0, 0), (x_barra, y_barra, largura_barra * porcentagem, altura_barra))
-        
-        # 4. Borda da barra (Branca)
+        # Borda (Branca)
         pygame.draw.rect(tela, (255, 255, 255), (x_barra, y_barra, largura_barra, altura_barra), 2)
         
-        # Lógica de troca de fase (Sprites e Velocidade)
-        if self.vida <= self.vida_max * 0.5:
-            # Note: evite carregar sprites dentro do draw (isso pesa o jogo)
-            # Idealmente, você faria essa troca apenas uma vez quando a vida atingir 50%
-            if self.sprites != self.sprites_p2:
-                self.sprites = self.sprites_p2
-                self.velocidade = 3
+        # Troca de Fase
+        if self.vida <= self.vida_max / 2:
+            self.sprites = self.sprites_p2
+            self.velocidade = 3
 
     def get_rect(self):
-        """Retorna o retângulo de colisão do projétil"""
-        return pygame.Rect(self.x - self.largura//2, self.y - self.altura//2, 
-                        self.largura, self.altura)
+        return self.rect
 
 class GerenciadorInimigos:
     """Gerencia spawn e atualização de todos os inimigos"""
