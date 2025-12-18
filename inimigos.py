@@ -248,7 +248,7 @@ class Boss:
         self.timer_animacao = 0
 
         # 2. Depois tentamos carregar os sprites
-        self.sprites = carregar_sprites_animacao("sprites/inimigos/Boss/Boss.p1", 6)
+        self.sprites = carregar_sprites_animacao("sprites/Inimigos/Boss/Boss.p1", 6)
         self.image = self.sprites[self.frame]
             
         # 3. Por fim, definimos o retângulo de colisão
@@ -284,7 +284,7 @@ class Boss:
             if self.y < py: self.y += self.velocidade
             if self.y > py: self.y -= self.velocidade
         
-        self.rect.topleft = (self.x, self.y)
+        self.rect.topleft = (self.x-50, self.y-50)
 
     def draw(self, tela):
         # Inverter o sprite dependendo da posição do jogador (igual aos outros)
@@ -307,7 +307,7 @@ class Boss:
         pygame.draw.rect(tela, (255, 0, 0), (x_barra, y_barra, largura_barra * porcentagem, 25))
         pygame.draw.rect(tela, (255, 255, 255), (x_barra, y_barra, largura_barra, 25), 2)
         if self.vida <= self.vida_max * 0.5:
-            self.sprites = carregar_sprites_animacao("sprites/inimigos/Boss/Boss.p2", 6)
+            self.sprites = carregar_sprites_animacao("sprites/Inimigos/Boss/Boss.p2", 6)
 
 
 class GerenciadorInimigos:
@@ -335,10 +335,10 @@ class GerenciadorInimigos:
         self.max_demos = 3
         
         # Carregar sprites
-        self.sprites_bruxa = carregar_sprites_animacao("sprites/inimigos/Bruxa/Fly", 4)
-        self.sprites_morcego = carregar_sprites_animacao("sprites/inimigos/morcego", 4)
-        self.sprites_projetil = carregar_sprites_animacao("sprites/inimigos/Bruxa/Attack", 5)
-        self.sprites_demo = carregar_sprites_animacao("sprites/inimigos/Demo", 4)
+        self.sprites_bruxa = carregar_sprites_animacao("sprites/Inimigos/Bruxa/Fly", 4)
+        self.sprites_morcego = carregar_sprites_animacao("sprites/Inimigos/Morcego", 4)
+        self.sprites_projetil = carregar_sprites_animacao("sprites/Inimigos/Bruxa/Attack", 5)
+        self.sprites_demo = carregar_sprites_animacao("sprites/Inimigos/Demo", 4)
     
     def spawn_bruxa(self):
         """Cria uma nova bruxa"""

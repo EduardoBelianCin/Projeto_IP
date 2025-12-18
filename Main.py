@@ -14,6 +14,7 @@ from inimigos import GerenciadorInimigos
 pygame.init()
 pygame.mixer.init()
 
+canaldemo = pygame.mixer.Channel(0)
 canalbruxa = pygame.mixer.Channel(1)
 canalmorcego = pygame.mixer.Channel(2)
 
@@ -45,6 +46,12 @@ som_demo_spawn.set_volume(0.05)
 
 som_boss = pygame.mixer.Sound("Audios/inicioboss.mp3")
 som_boss.set_volume(1)
+som_demo_riso = pygame.mixer.Sound("Audios/demo_riso.mp3")
+som_demo_riso.set_volume(0.5)
+som_demo_morte = pygame.mixer.Sound("Audios/demo_morte.mp3")
+som_demo_morte.set_volume(0.5)
+som_demo_corrida = pygame.mixer.Sound("Audios/som_corrida.mp3")
+som_demo_corrida.set_volume(0.2)
 
 # Som de Vitória ---
 som_vitoria = pygame.mixer.Sound("Audios/victory.mp3")
@@ -58,7 +65,6 @@ som_derrota.set_volume(1)
 # Música de fundo do menu
 pygame.mixer.music.load("Audios/menu_music.mp3")
 pygame.mixer.music.set_volume(0.5)
-musica_menu_disponivel = True
 
 som_maca.set_volume(0.2)
 som_moeda.set_volume(0.2)
@@ -203,6 +209,7 @@ class Game:
         self.MBL = False
         self.stopderrota = False
         self.stopvitoria = False
+        self.musica_menu_disponivel = True
         
     def adicionar_texto_flutuante(self, texto, x, y, cor):
         """Adiciona um texto flutuante na posição especificada"""
@@ -361,15 +368,20 @@ class Game:
 
         for demo in gerenc.demos[:]:
             som_demo_spawn.play()
+            if(canaldemo.get_busy() == False):
+                canaldemo.play(som_demo_corrida)
             demo_rect = demo.get_rect()
             
             if player_rect.colliderect(demo_rect):
+                som_demo_riso.play()
                 self.vida -= 12
                 self.adicionar_texto_flutuante("-12 VIDA", self.player.x, self.player.y - 30, (255, 50, 50))
                 gerenc.demos.remove(demo)
             
             # Colisão espada com demo
             if sword_rect.colliderect(demo_rect):
+                som_demo_morte.play()
+                som_espada_hit.play()
                 self.pontos += 15
                 self.adicionar_texto_flutuante("+15 pts", demo.x, demo.y, (255, 215, 0))
                 gerenc.demos.remove(demo)
@@ -394,6 +406,14 @@ class Game:
     
     def reiniciar_jogo(self):
         """Reinicia o jogo resetando todas as variáveis"""
+        pygame.mixer.stop()
+        pygame.mixer.music.stop()
+        self.MBB = False
+        self.MBL = False
+        self.stopderrota = False
+        self.stopvitoria = False
+        self.boss_vivo = False
+        self.boss_derrotado = False
         self.pontos = 0
         self.diamantes = 0
         self.moedas = 0
@@ -590,7 +610,7 @@ class Game:
             # ========== MENU PRINCIPAL ==========
             if self.estado == "MENU":
                 # Tocar música do menu (loop infinito) - apenas se disponível
-                if not self.musica_menu_tocando and musica_menu_disponivel:
+                if not self.musica_menu_tocando and self.musica_menu_disponivel:
                     pygame.mixer.music.play(-1)  # -1 = loop infinito
                     pygame.mixer.music.set_volume(0.3)
                     self.musica_menu_tocando = True
@@ -617,28 +637,31 @@ class Game:
             # ========== JOGANDO ==========
             elif self.estado == "JOGANDO":
                 # Fade out gradual da música do menu (apenas se estiver disponível)
-                if self.fazendo_fade_out and musica_menu_disponivel:
-                    self.volume_fade -= 0.01  # Diminui 0.01 por frame (suave)
-                    if self.volume_fade <= 0:
-                        self.volume_fade = 0
-                        pygame.mixer.music.stop()
-                        self.musica_menu_tocando = False
-                        self.fazendo_fade_out = False
-                    else:
-                        pygame.mixer.music.set_volume(self.volume_fade)
+                # if self.fazendo_fade_out and self.musica_menu_disponivel:
+                #     self.volume_fade -= 0.01  # Diminui 0.01 por frame (suave)
+                #     if self.volume_fade <= 0:
+                #         self.volume_fade = 0
+                #         pygame.mixer.music.stop()
+                #         self.musica_menu_tocando = False
+                #         self.fazendo_fade_out = False
+                #         self.musica_menu_disponivel = False
+                #     else:
+                #         pygame.mixer.music.set_volume(self.volume_fade)
 
                 if(pygame.mixer.music.get_busy() == False)and(self.MBB==False):
+                    pygame.mixer.music.stop()
                     pygame.mixer.music.load("Audios/Musica_Background_begin.mp3")
-                    pygame.mixer_music.play()
+                    pygame.mixer_music.play(0, 0)
                     pygame.mixer.music.set_volume(0.5)
                     self.MBB = True
                 elif(pygame.mixer.music.get_busy() == False)and(self.MBB==True)and(self.MBL==False):
+                    pygame.mixer.music.stop()
                     pygame.mixer.music.load("Audios/Musica_Background_loop.mp3")
-                    pygame.mixer_music.play(-1)
+                    pygame.mixer_music.play(-1, 0)
                     pygame.mixer.music.set_volume(0.5)
                     self.MBL = True
                 
-                # Checar sapwn do boss
+                # Checar spawn do boss
                 if self.pontos >= 1000 and not self.boss_vivo and not self.boss_derrotado:
                     som_boss.play()
                     from inimigos import Boss # Certifique-se de ter a classe Boss no inimigos.py
@@ -668,7 +691,6 @@ class Game:
                         self.boss_derrotado = True
                         self.boss = None
                         self.estado = "VITORIA"
-                        som_vitoria.play()
 
                 self.tela.fill((0, 0, 0))
                 self.tela.blit(self.BACKEST, (0, 0))
@@ -749,6 +771,7 @@ class Game:
                 if(self.stopvitoria == False):
                     pygame.mixer.stop()
                     self.stopvitoria = True
+                    som_vitoria.play()
 
                 for event in pygame.event.get():
                     if event.type == QUIT:
