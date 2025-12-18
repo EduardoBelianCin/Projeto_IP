@@ -276,6 +276,9 @@ class Game:
         largura_preenchida = int(largura_barra * progresso)
         
         # Fundo da barra (escuro)
+        if self.boss_vivo or self.boss_derrotado:
+            return
+
         fundo = pygame.Rect(x_barra, y_barra, largura_barra, altura_barra)
         pygame.draw.rect(self.tela, (40, 40, 50), fundo, border_radius=10)
         
@@ -417,19 +420,31 @@ class Game:
         self.maçãs = 0
         self.vida = 50
         self.fim_de_jogo = False
+        
+        # --- RESET DO BOSS E MOBS ---
+        self.boss = None
+        self.boss_vivo = False
+        self.boss_derrotado = False
+        self.gerenciador_inimigos.limpar() 
+        # ----------------------------
+
         self.inicio_vitoria_tempo = 0
         self.frame_animacao = 0
         self.timer_animacao = 0
         self.coletaveis_ativos.clear()
-        self.textos_flutuantes.clear()  # Limpa textos flutuantes
-        self.gerenciador_inimigos.limpar()
+        self.textos_flutuantes.clear()
+        
         self.spawn_random_coin()
-        # Reposicionar o jogador
         self.player.x = self.largura // 2
         self.player.y = self.altura // 2
-        # Iniciar fade out da música
+        
+        # Reset da música de fundo
+        pygame.mixer.music.stop()
+        self.MBB = False # Permite que a música de batalha recomece
+        self.MBL = False
         self.fazendo_fade_out = True
         self.volume_fade = 0.3
+        
         self.estado = "JOGANDO"
         
     def spawn_random_coin(self):
@@ -499,7 +514,7 @@ class Game:
         
         # legenda do jogo
         fonte_subtitulo = pygame.font.SysFont("Arial", 35, True)
-        txt_sub = fonte_subtitulo.render("Colete 1000 pontos para vencer!", True, (255, 255, 255))
+        txt_sub = fonte_subtitulo.render("Derrote a Força da Trevas!", True, (255, 255, 255))
         self.tela.blit(txt_sub, txt_sub.get_rect(center=(self.largura/2, 500)))
         
         # Botão JOGAR
@@ -660,18 +675,32 @@ class Game:
                 
                 # Checar spawn do boss
                 if self.pontos >= 1000 and not self.boss_vivo and not self.boss_derrotado:
+<<<<<<< Updated upstream
                     som_boss.play()
                     from inimigos import Boss # Certifique-se de ter a classe Boss no inimigos.py
+=======
+>>>>>>> Stashed changes
                     self.boss = Boss(self.largura, self.altura)
                     self.boss_vivo = True
-                    self.adicionar_texto_flutuante("O CHEFE DESPERTOU!", self.largura//2, self.altura//2, (255, 0, 0))
+                    self.adicionar_texto_flutuante("AS TREVAS CAIRÃO SOBRE VOCÊ!", self.largura//2, self.altura//2, (255, 0, 0))
 
                 if self.boss_vivo and self.boss:
                     self.boss.mover(self.player.x, self.player.y)
+
+                    if self.boss: # Verifica se o boss existe/está ativo
+                        for projetil in self.boss.energia[:]: # O [:] cria uma cópia para evitar erros ao remover
+                            # Cria o retângulo do projétil e do jogador
+                            
+                            rect_proj = projetil.get_rect()
+                            rect_player = pygame.Rect(self.player.x - 20, self.player.y - 30, 40, 60)
+                            if rect_proj.colliderect(rect_player):
+                                # O que acontece quando o jogador é atingido:
+                                self.vida -= 10  # Exemplo de dano
+                                self.boss.energia.remove(projetil)
                     
                     # Colisão: Espada atinge o Boss
                     if self.rect.colliderect(self.boss.rect):
-                        if pygame.time.get_ticks() % 5 == 0: # Evita que o dano seja por frame (muito rápido)
+                        if pygame.time.get_ticks() % 10 == 0: # Evita que o dano seja por frame (muito rápido)
                             self.boss.vida -= 5
                             som_espada_hit.play()
                             self.adicionar_texto_flutuante("-5", self.boss.x, self.boss.y, (255, 255, 255))
