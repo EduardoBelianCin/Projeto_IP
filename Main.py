@@ -44,7 +44,7 @@ som_demo_spawn = pygame.mixer.Sound("Audios/audiodemo.wav")
 som_demo_spawn.set_volume(0.05)
 
 som_boss = pygame.mixer.Sound("Audios/inicioboss.mp3")
-som_boss.set_volume(0.1)
+som_boss.set_volume(1)
 
 # Som de Vitória ---
 som_vitoria = pygame.mixer.Sound("Audios/victory.mp3")
