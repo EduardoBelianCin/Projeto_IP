@@ -418,7 +418,7 @@ class Game:
         self.diamantes = 0
         self.moedas = 0
         self.maçãs = 0
-        self.vida = 50
+        self.vida = 70
         self.fim_de_jogo = False
         
         # --- RESET DO BOSS E MOBS ---
