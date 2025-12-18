@@ -247,7 +247,7 @@ class Boss:
         self.y = -300 
         self.vida_max = 400
         self.vida = 400
-        self.velocidade = 1.5
+        self.velocidade = 3
         
         # Animação
         self.frame = 0

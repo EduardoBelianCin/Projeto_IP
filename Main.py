@@ -688,18 +688,20 @@ class Game:
                             # Cria o retângulo do projétil e do jogador
                             
                             rect_proj = projetil.get_rect()
-                            rect_player = pygame.Rect(self.player.x - 20, self.player.y - 30, 40, 60)
+                            rect_proj.center = (int(projetil.x), int(projetil.y))
+                            rect_player = pygame.Rect(self.player.x+20, self.player.y+20, 40, 60)
                             if rect_proj.colliderect(rect_player):
                                 # O que acontece quando o jogador é atingido:
+                                self.adicionar_texto_flutuante("-10 VIDA", self.player.x, self.player.y - 30, (255, 50, 50))
                                 self.vida -= 10  # Exemplo de dano
                                 self.boss.energia.remove(projetil)
                     
                     # Colisão: Espada atinge o Boss
                     if self.rect.colliderect(self.boss.rect):
                         if pygame.time.get_ticks() % 10 == 0: # Evita que o dano seja por frame (muito rápido)
-                            self.boss.vida -= 5
+                            self.boss.vida -= 10
                             som_espada_hit.play()
-                            self.adicionar_texto_flutuante("-5", self.boss.x, self.boss.y, (255, 255, 255))
+                            self.adicionar_texto_flutuante("-10", self.boss.x, self.boss.y, (255, 255, 255))
 
                     # Colisão: Boss atinge o Jogador
                     if templário.colliderect(self.boss.rect):
