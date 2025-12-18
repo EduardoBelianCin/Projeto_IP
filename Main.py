@@ -140,7 +140,7 @@ class Game:
         self.img_derrota = pygame.transform.scale(self.img_derrota, (self.largura, self.altura))
         self.img_logo = pygame.transform.scale(self.img_logo, (self.largura/2, self.altura/2))
 
-        self.vida = 50
+        self.vida = 70
         self.hud_sprites = Hud().load_hud_sprites("sprites/hud/barra de vida")
 
         self.FULLSCREEN = False
