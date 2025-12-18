@@ -9,6 +9,9 @@ som_fogo_cont = pygame.mixer.Sound("Audios/Som_cont_Fogo.mp3")
 som_fogo_cont.set_volume(0.08)
 canalfogo = pygame.mixer.Channel(3)
 
+som_demo_spawn = pygame.mixer.Sound("Audios/audiodemo.wav")
+som_demo_spawn.set_volume(0.05)
+
 def carregar_sprites_animacao(caminho, num_frames):
     """Carrega sprites de animação de uma pasta"""
     sprites = []
@@ -398,6 +401,7 @@ class GerenciadorInimigos:
             
             demo = Demo(x, y, self.sprites_demo)
             self.demos.append(demo)
+            som_demo_spawn.play()
     
     def criar_projetil(self, x, y, jogador_x, jogador_y):
         """Cria um projétil de fogo"""

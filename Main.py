@@ -14,9 +14,9 @@ from inimigos import GerenciadorInimigos
 pygame.init()
 pygame.mixer.init()
 
-canaldemo = pygame.mixer.Channel(0)
 canalbruxa = pygame.mixer.Channel(1)
 canalmorcego = pygame.mixer.Channel(2)
+canaldemo = pygame.mixer.Channel(4)
 
 som_maca = pygame.mixer.Sound("Audios/Successo.wav")
 som_moeda = pygame.mixer.Sound("Audios/SuccessInfographic.ogg")
@@ -39,15 +39,12 @@ som_bruxa_voo.set_volume(0.2)
 som_morcego_morte = pygame.mixer.Sound("Audios/Morcego_morte.mp3")
 som_morcego_morte.set_volume(0.5)
 som_morcego_voo = pygame.mixer.Sound("Audios/Morcego_voo.mp3")
-som_morcego_voo.set_volume(0.3)
-
-som_demo_spawn = pygame.mixer.Sound("Audios/audiodemo.wav")
-som_demo_spawn.set_volume(0.05)
+som_morcego_voo.set_volume(0.4)
 
 som_boss = pygame.mixer.Sound("Audios/inicioboss.mp3")
 som_boss.set_volume(1)
 som_demo_riso = pygame.mixer.Sound("Audios/demo_riso.mp3")
-som_demo_riso.set_volume(0.5)
+som_demo_riso.set_volume(0.4)
 som_demo_morte = pygame.mixer.Sound("Audios/demo_morte.mp3")
 som_demo_morte.set_volume(0.5)
 som_demo_corrida = pygame.mixer.Sound("Audios/som_corrida.mp3")
@@ -367,7 +364,7 @@ class Game:
                 gerenc.morcegos.remove(morcego)
 
         for demo in gerenc.demos[:]:
-            som_demo_spawn.play()
+
             if(canaldemo.get_busy() == False):
                 canaldemo.play(som_demo_corrida)
             demo_rect = demo.get_rect()
