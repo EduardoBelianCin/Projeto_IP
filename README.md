@@ -27,9 +27,10 @@ PROJETO_IP
 - ├──boss --- funções do boss final  
 - ├──Main --- funções principais que fazem o jogo ser executado  
 ## Ferramentas Utilizadas
+* Criação do Mapa: https://kenney.nl/assets/tiny-town
 ## Divisão do Trabalho
 * Renan Feliciano - Criação dos sprites e imagens presentes no jogo  
-* Eduardo Belian -  hud e plano de fundo do jogo  
+* Eduardo Belian - HUD de coletáveis e Criação do mapa do jogo  
 * Miguel Henrique - correção de bugs, e sistema de colisão e spawn dos inimigos  
 * Yuri Oliveira -  criação do spawn dos itens, sistema de contagem de pontos e menu  
 * Sávio Rikelme - implementação das telas de morte e vitória  
@@ -39,4 +40,6 @@ PROJETO_IP
 * Condicionais  
 * Arrays  
 ## Desafios Enfrentados
+Bugs com alguns sprites, problemas de escalas com os objetos.
 ### Lições Aprendidas
+Aprendemos o uso do GitHub, para trabalhar em grupo, enviar atualizações no código e divisão de tarefas. Aprendemos o uso das classes em Python e a utilizar a bibliotecama PyGame.
