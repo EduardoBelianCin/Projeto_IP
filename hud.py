@@ -11,16 +11,21 @@ class Hud():
 
         tela.blit(bg_surface, (8,10))
 
+        linha1 = font.render(f"Moedas: {maçãs}", True, (255,255,255))
         linha2 = font.render(f"Moedas: {moedas}", True, (255,255,255))
         linha3 = font.render(f"Diamantes: {diamantes}", True, (255,255,255))
         linha_score = font.render(f"Pontuação: {pontos}", True, (255,255,255))
 
         mult_scale = 1.2
+        imagem_maca = pygame.image.load("sprites/itens/maca.png")
+        imagem_maca = pygame.transform.scale(imagem_maca, (68*mult_scale, 37*mult_scale))
         imagem_moeda = pygame.image.load("sprites/itens/moeda.png")
         imagem_moeda = pygame.transform.scale(imagem_moeda, (68*mult_scale, 37*mult_scale))
         imagem_dima = pygame.image.load("sprites/itens/diamante.png")
         imagem_dima = pygame.transform.scale(imagem_dima, (68*mult_scale*0.8, 37*mult_scale*0.8))
 
+        tela.blit(linha1, (50, 37))
+        tela.blit(imagem_maca, (-10, 37))
         tela.blit(linha2, (50, 70))
         tela.blit(imagem_moeda, (-10, 67))
         tela.blit(linha3, (50, 95))

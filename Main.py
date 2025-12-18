@@ -515,7 +515,7 @@ class Game:
         # legenda do jogo
         fonte_subtitulo = pygame.font.SysFont("Arial", 35, True)
         txt_sub = fonte_subtitulo.render("Derrote a Força da Trevas!", True, (255, 255, 255))
-        self.tela.blit(txt_sub, txt_sub.get_rect(center=(self.largura/2, 500)))
+        self.tela.blit(txt_sub, txt_sub.get_rect(center=(self.largura/2, self.altura/2.1)))
         
         # Botão JOGAR
         cor_jogar = (50, 150, 50) if self.botao_jogar.collidepoint(mouse_pos) else (30, 100, 30)
@@ -791,6 +791,7 @@ class Game:
             
             # ========== TELA DE VITÓRIA ==========
             elif self.estado == "VITORIA":
+                
                 pygame.mixer.music.stop()
                 if(self.stopvitoria == False):
                     pygame.mixer.stop()
