@@ -676,8 +676,11 @@ class Game:
                 # Checar spawn do boss
                 if self.pontos >= 1000 and not self.boss_vivo and not self.boss_derrotado:
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                     som_boss.play()
                     from inimigos import Boss # Certifique-se de ter a classe Boss no inimigos.py
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
                     self.boss = Boss(self.largura, self.altura)

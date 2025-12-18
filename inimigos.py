@@ -248,7 +248,8 @@ class Boss:
         self.velocidade = 1.5
         self.frame = 0
         self.timer_animacao = 0
-<<<<<<< Updated upstream
+        self.altura = altura
+        self.largura = largura
 
         # 2. Depois tentamos carregar os sprites
         self.sprites = carregar_sprites_animacao("sprites/Inimigos/Boss/Boss.p1", 6)
@@ -262,14 +263,12 @@ class Boss:
         # Animação
         tempo_atual = pygame.time.get_ticks()
         self.jogador_x = px
-=======
+
         self.ultimo_tiro = pygame.time.get_ticks()
         self.intervalo_tiro = 1000
         self.velocidade_proj = 5
         self.energia = []
-        self.altura = altura
-        self.largura = largura
->>>>>>> Stashed changes
+
         
         # Carregamento de Sprites
         self.sprites_p1 = carregar_sprites_animacao("sprites/inimigos/Boss/Boss.p1", 6)
@@ -317,9 +316,8 @@ class Boss:
             self.frame = (self.frame + 1) % len(self.sprites)
             self.timer_animacao = tempo_atual
         
-<<<<<<< Updated upstream
         self.rect.topleft = (self.x-50, self.y-50)
-=======
+
         self.image = self.sprites[self.frame]
         self.rect = self.image.get_rect(center=(int(self.x), int(self.y)))
 
@@ -337,7 +335,6 @@ class Boss:
             # Ataque em Cruz
             for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                 self.atirar(self.x, self.y, self.x + dx, self.y + dy)
->>>>>>> Stashed changes
 
     def draw(self, tela):
         for proj in self.energia:
@@ -349,24 +346,31 @@ class Boss:
         tela.blit(sprite, self.rect)
 
     def draw_health_bar(self, tela, largura_tela):
-        # Barra de vida
+        # Configurações da posição da barra
         largura_barra = 500
+        altura_barra = 25
         x_barra = (largura_tela - largura_barra) // 2
-        pygame.draw.rect(tela, (50, 0, 0), (x_barra, 70, largura_barra, 20))
-        porcentagem = max(0, self.vida / self.vida_max)
-<<<<<<< Updated upstream
-        pygame.draw.rect(tela, (255, 0, 0), (x_barra, y_barra, largura_barra * porcentagem, 25))
-        pygame.draw.rect(tela, (255, 255, 255), (x_barra, y_barra, largura_barra, 25), 2)
-        if self.vida <= self.vida_max * 0.5:
-            self.sprites = carregar_sprites_animacao("sprites/Inimigos/Boss/Boss.p2", 6)
-=======
-        pygame.draw.rect(tela, (255, 0, 0), (x_barra, 70, largura_barra * porcentagem, 20))
+        y_barra = 70  # Definindo o valor que faltava
         
-        # Troca de Fase (Sprites e Velocidade)
-        if self.vida <= self.vida_max / 2:
-            self.sprites = self.sprites_p2
-            self.velocidade = 3
->>>>>>> Stashed changes
+        # 1. Fundo da barra (Cor escura/vinho)
+        pygame.draw.rect(tela, (50, 0, 0), (x_barra, y_barra, largura_barra, altura_barra))
+        
+        # 2. Calcular preenchimento
+        porcentagem = max(0, self.vida / self.vida_max)
+        
+        # 3. Desenhar o preenchimento (Vermelho)
+        pygame.draw.rect(tela, (255, 0, 0), (x_barra, y_barra, largura_barra * porcentagem, altura_barra))
+        
+        # 4. Borda da barra (Branca)
+        pygame.draw.rect(tela, (255, 255, 255), (x_barra, y_barra, largura_barra, altura_barra), 2)
+        
+        # Lógica de troca de fase (Sprites e Velocidade)
+        if self.vida <= self.vida_max * 0.5:
+            # Note: evite carregar sprites dentro do draw (isso pesa o jogo)
+            # Idealmente, você faria essa troca apenas uma vez quando a vida atingir 50%
+            if self.sprites != self.sprites_p2:
+                self.sprites = self.sprites_p2
+                self.velocidade = 3
 
     def get_rect(self):
         """Retorna o retângulo de colisão do projétil"""
