@@ -40,6 +40,12 @@ som_morcego_morte.set_volume(0.5)
 som_morcego_voo = pygame.mixer.Sound("Audios/Morcego_voo.mp3")
 som_morcego_voo.set_volume(0.3)
 
+som_demo_spawn = pygame.mixer.Sound("Audios/audiodemo.wav")
+som_demo_spawn.set_volume(0.05)
+
+som_boss = pygame.mixer.Sound("Audios/inicioboss.mp3")
+som_boss.set_volume(1)
+
 # Som de Vitória ---
 som_vitoria = pygame.mixer.Sound("Audios/victory.mp3")
 som_vitoria.set_volume(1)
@@ -354,6 +360,7 @@ class Game:
                 gerenc.morcegos.remove(morcego)
 
         for demo in gerenc.demos[:]:
+            som_demo_spawn.play()
             demo_rect = demo.get_rect()
             
             if player_rect.colliderect(demo_rect):
@@ -633,6 +640,7 @@ class Game:
                 
                 # Checar sapwn do boss
                 if self.pontos >= 1000 and not self.boss_vivo and not self.boss_derrotado:
+                    som_boss.play()
                     from inimigos import Boss # Certifique-se de ter a classe Boss no inimigos.py
                     self.boss = Boss(self.largura, self.altura)
                     self.boss_vivo = True
